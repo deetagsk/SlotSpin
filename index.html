@@ -44,6 +44,29 @@
     return;
   }
 
+  coins--;
+
+  let s1 = symbols[Math.floor(Math.random() * symbols.length)];
+  let s2 = symbols[Math.floor(Math.random() * symbols.length)];
+  let s3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+  // Show symbols FIRST
+  document.getElementById("slot").innerText = `${s1} ${s2} ${s3}`;
+  document.getElementById("coins").innerText = "Coins: " + coins;
+
+  // Win condition
+  if (s1 === s2 && s2 === s3) {
+    coins += 10;
+    document.getElementById("coins").innerText = "Coins: " + coins;
+
+    // Delay message so symbols render first
+    setTimeout(() => {
+      alert("🎉 You won 10 coins!");
+    }, 100);
+  }
+}
+
+
   coins--; // deduct one coin first
 
   // Spin symbols
