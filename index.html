@@ -39,22 +39,29 @@
   const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
   function spin() {
-    if (coins <= 0) {
-      alert("No coins left!");
-      return;
-    }
+  if (coins <= 0) {
+    alert("No coins left!");
+    return;
+  }
 
-    coins--;
-    let s1 = symbols[Math.floor(Math.random() * symbols.length)];
-    let s2 = symbols[Math.floor(Math.random() * symbols.length)];
-    let s3 = symbols[Math.floor(Math.random() * symbols.length)];
+  coins--; // deduct one coin first
 
-    document.getElementById("slot").innerText = `${s1} ${s2} ${s3}`;
+  // Spin symbols
+  let s1 = symbols[Math.floor(Math.random() * symbols.length)];
+  let s2 = symbols[Math.floor(Math.random() * symbols.length)];
+  let s3 = symbols[Math.floor(Math.random() * symbols.length)];
 
-    if (s1 === s2 && s2 === s3) {
-      coins += 10;
-      alert("🎉 You won 10 coins!");
-    }
+  // Update slot display immediately
+  document.getElementById("slot").innerText = `${s1} ${s2} ${s3}`;
+  document.getElementById("coins").innerText = "Coins: " + coins;
+
+  // Check for match
+  if (s1 === s2 && s2 === s3) {
+    coins += 10; // add reward
+    document.getElementById("coins").innerText = "Coins: " + coins; // update coins immediately
+    alert("🎉 You won 10 coins!");
+  }
+}
 
     document.getElementById("coins").innerText = "Coins: " + coins;
   }
