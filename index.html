@@ -77,6 +77,13 @@ button {
 .win {
   text-shadow: 0 0 10px gold;
 }
+
+#continueBtn {
+  display: none;
+  background: #2196f3;
+  border: none;
+  font-weight: bold;
+}
 </style>
 </head>
 
@@ -93,7 +100,8 @@ button {
   <button class="bet-btn" onclick="setBet(10)">Bet 10</button>
 </div>
 
-<button class="spin-btn" onclick="spin()">SPIN</button>
+<button class="spin-btn" id="spinBtn" onclick="spin()">SPIN</button>
+<button id="continueBtn" onclick="continueGame()">CONTINUE</button>
 
 <div id="coins">Coins: 100</div>
 <div id="message"></div>
@@ -101,17 +109,24 @@ button {
 <script>
 let coins = 100;
 let bet = 1;
+let waitingForContinue = false;
+
 const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
 function setBet(value) {
+  if (waitingForContinue) return;
+
   bet = value;
   document.querySelectorAll(".bet-btn").forEach(b => b.classList.remove("active"));
   event.target.classList.add("active");
 }
 
 function spin() {
+  if (waitingForContinue) return;
+
   const slot = document.getElementById("slot");
   const message = document.getElementById("message");
+  const spinBtn = document.getElementById("spinBtn");
 
   if (coins < bet) {
     message.innerText = "❌ Not enough coins!";
@@ -122,6 +137,8 @@ function spin() {
   message.innerText = "";
   slot.classList.add("spinning");
   slot.classList.remove("win");
+
+  spinBtn.disabled = true;
 
   let s1, s2, s3;
 
@@ -137,13 +154,26 @@ function spin() {
     slot.classList.remove("spinning");
 
     if (s1 === s2 && s2 === s3) {
-      coins += bet * 10;
-      message.innerText = `🎉 You won ${bet * 10} coins!`;
+      const winAmount = bet * 10;
+      coins += winAmount;
+      message.innerText = `🎉 You won ${winAmount} coins!`;
       slot.classList.add("win");
+
+      waitingForContinue = true;
+      document.getElementById("continueBtn").style.display = "inline-block";
+    } else {
+      spinBtn.disabled = false;
     }
 
     document.getElementById("coins").innerText = "Coins: " + coins;
   }, 1200);
+}
+
+function continueGame() {
+  document.getElementById("message").innerText = "";
+  document.getElementById("continueBtn").style.display = "none";
+  document.getElementById("spinBtn").disabled = false;
+  waitingForContinue = false;
 }
 </script>
 
