@@ -6,7 +6,7 @@
 
 <style>
 body {
-  background: radial-gradient(circle, #222, #000);
+  background: #000;
   color: #fff;
   font-family: Arial, sans-serif;
   text-align: center;
@@ -14,34 +14,28 @@ body {
 }
 
 h1 {
-  font-size: 38px;
-  margin-bottom: 5px;
+  font-size: 36px;
 }
 
 .subtitle {
-  opacity: 0.8;
+  opacity: 0.7;
   margin-bottom: 25px;
 }
 
 .slot {
   font-size: 60px;
-  letter-spacing: 15px;
   margin: 20px 0;
   min-height: 80px;
 }
 
 .spinning {
-  animation: spin 0.2s infinite;
+  animation: shake 0.15s infinite;
 }
 
-@keyframes spin {
+@keyframes shake {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
   100% { transform: translateY(0); }
-}
-
-.controls {
-  margin: 15px 0;
 }
 
 button {
@@ -49,24 +43,23 @@ button {
   font-size: 18px;
   margin: 5px;
   cursor: pointer;
-  border: none;
-  border-radius: 6px;
-}
-
-.spin-btn {
-  background: #4caf50;
-  color: #000;
-  font-weight: bold;
 }
 
 .bet-btn {
-  background: #333;
+  background: #222;
   color: #fff;
+  border: none;
 }
 
 .bet-btn.active {
   background: gold;
   color: #000;
+}
+
+.spin-btn {
+  background: #4caf50;
+  border: none;
+  font-weight: bold;
 }
 
 #coins {
@@ -77,12 +70,12 @@ button {
 #message {
   margin-top: 12px;
   font-size: 22px;
-  min-height: 28px;
   color: #4caf50;
+  min-height: 28px;
 }
 
 .win {
-  text-shadow: 0 0 10px gold, 0 0 20px gold;
+  text-shadow: 0 0 10px gold;
 }
 </style>
 </head>
@@ -94,7 +87,7 @@ button {
 
 <div class="slot" id="slot">🍒 🍋 🍉</div>
 
-<div class="controls">
+<div>
   <button class="bet-btn active" onclick="setBet(1)">Bet 1</button>
   <button class="bet-btn" onclick="setBet(5)">Bet 5</button>
   <button class="bet-btn" onclick="setBet(10)">Bet 10</button>
@@ -104,15 +97,6 @@ button {
 
 <div id="coins">Coins: 100</div>
 <div id="message"></div>
-
-<!-- Sounds -->
-<audio id="spinSound">
-  <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3">
-</audio>
-
-<audio id="winSound">
-  <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3">
-</audio>
 
 <script>
 let coins = 100;
@@ -139,11 +123,9 @@ function spin() {
   slot.classList.add("spinning");
   slot.classList.remove("win");
 
-  document.getElementById("spinSound").play();
-
   let s1, s2, s3;
 
-  const spinInterval = setInterval(() => {
+  const interval = setInterval(() => {
     s1 = symbols[Math.floor(Math.random() * symbols.length)];
     s2 = symbols[Math.floor(Math.random() * symbols.length)];
     s3 = symbols[Math.floor(Math.random() * symbols.length)];
@@ -151,15 +133,13 @@ function spin() {
   }, 100);
 
   setTimeout(() => {
-    clearInterval(spinInterval);
+    clearInterval(interval);
     slot.classList.remove("spinning");
 
     if (s1 === s2 && s2 === s3) {
-      const winAmount = bet * 10;
-      coins += winAmount;
-      message.innerText = `🎉 You won ${winAmount} coins!`;
+      coins += bet * 10;
+      message.innerText = `🎉 You won ${bet * 10} coins!`;
       slot.classList.add("win");
-      document.getElementById("winSound").play();
     }
 
     document.getElementById("coins").innerText = "Coins: " + coins;
