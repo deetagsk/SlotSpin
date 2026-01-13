@@ -33,6 +33,7 @@
 <button onclick="spin()">SPIN</button>
 
 <p id="coins">Coins: 100</p>
+<p id="message" style="color: gold; font-size: 18px;"></p>
 
 <script>
   let coins = 100;
@@ -40,9 +41,12 @@
 
   function spin() {
   if (coins <= 0) {
-    alert("No coins left!");
+    document.getElementById("message").innerText = "No coins left!";
     return;
   }
+
+  // Clear old message
+  document.getElementById("message").innerText = "";
 
   coins--;
 
@@ -50,39 +54,19 @@
   let s2 = symbols[Math.floor(Math.random() * symbols.length)];
   let s3 = symbols[Math.floor(Math.random() * symbols.length)];
 
-  // Show symbols FIRST
+  // 1️⃣ SHOW SYMBOLS FIRST
   document.getElementById("slot").innerText = `${s1} ${s2} ${s3}`;
+
+  // 2️⃣ UPDATE COINS
   document.getElementById("coins").innerText = "Coins: " + coins;
 
-  // Win condition
+  // 3️⃣ CHECK WIN
   if (s1 === s2 && s2 === s3) {
     coins += 10;
     document.getElementById("coins").innerText = "Coins: " + coins;
 
-    // Delay message so symbols render first
-    setTimeout(() => {
-      alert("🎉 You won 10 coins!");
-    }, 100);
-  }
-}
-
-
-  coins--; // deduct one coin first
-
-  // Spin symbols
-  let s1 = symbols[Math.floor(Math.random() * symbols.length)];
-  let s2 = symbols[Math.floor(Math.random() * symbols.length)];
-  let s3 = symbols[Math.floor(Math.random() * symbols.length)];
-
-  // Update slot display immediately
-  document.getElementById("slot").innerText = `${s1} ${s2} ${s3}`;
-  document.getElementById("coins").innerText = "Coins: " + coins;
-
-  // Check for match
-  if (s1 === s2 && s2 === s3) {
-    coins += 10; // add reward
-    document.getElementById("coins").innerText = "Coins: " + coins; // update coins immediately
-    alert("🎉 You won 10 coins!");
+    // 4️⃣ SHOW MESSAGE (NON-BLOCKING)
+    document.getElementById("message").innerText = "🎉 You won 10 coins!";
   }
 }
 
