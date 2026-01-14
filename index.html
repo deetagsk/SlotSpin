@@ -11,6 +11,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -21,29 +22,31 @@ h1 {
 .subtitle {
   font-size: 14px;
   color: #bbb;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .lang-btn {
-  margin: 10px;
+  margin: 5px;
   padding: 6px 12px;
   font-size: 14px;
   cursor: pointer;
 }
 
 .casino-frame {
-  margin: 25px auto;
-  padding: 25px;
+  margin: 20px auto;
+  padding: 20px;
   width: 320px;
   background: linear-gradient(145deg, #111, #000);
   border-radius: 18px;
   box-shadow: 0 0 15px gold, inset 0 0 20px #000;
+  position: relative;
+  z-index: 2;
 }
 
 .slot {
   font-size: 64px;
   background: #000;
-  padding: 20px;
+  padding: 18px;
   border-radius: 12px;
   border: 3px solid gold;
 }
@@ -52,7 +55,9 @@ h1 {
   animation: flash 0.15s infinite;
 }
 
-@keyframes flash { 50% { box-shadow: 0 0 20px gold; } }
+@keyframes flash {
+  50% { box-shadow: 0 0 20px gold; }
+}
 
 button {
   padding: 12px 22px;
@@ -85,21 +90,35 @@ button {
   font-weight: bold;
 }
 
-#rewardBtn {
+.reward-btn {
   background: linear-gradient(#ff9800, #e65100);
-  color: #000;
   font-weight: bold;
-  box-shadow: 0 0 10px orange;
 }
 
 #coins {
   font-size: 22px;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 #message {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 20px;
+  min-height: 26px;
+}
+
+/* BONUS ITEMS */
+.bonus {
+  position: absolute;
+  font-size: 26px;
+  cursor: pointer;
+  animation: float 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-12px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.8; }
 }
 
 .rtl {
@@ -109,12 +128,15 @@ button {
 </head>
 
 <body>
+
 <h1 id="title">🎰 SlotSpin</h1>
-<div class="subtitle" id="subtitle">Entertainment only – No real money gambling</div>
+<div class="subtitle" id="subtitle">
+  Entertainment only – No real money gambling
+</div>
 
 <div>
-  <button class="lang-btn" onclick="setLanguage('en')">English</button>
-  <button class="lang-btn" onclick="setLanguage('ar')">العربية</button>
+  <button class="lang-btn" onclick="setLang('en')">English</button>
+  <button class="lang-btn" onclick="setLang('ar')">العربية</button>
 </div>
 
 <div>
@@ -129,105 +151,142 @@ button {
 
 <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN</button>
 <button id="continueBtn" onclick="continueGame()">CONTINUE</button>
-<button id="rewardBtn" onclick="watchAd()">WATCH AD → GET COINS</button>
+
+<div>
+  <button class="reward-btn" onclick="watchAd()">🎥 Watch Ad → Get 50 Coins</button>
+</div>
 
 <div id="message"></div>
 <div id="coins">Coins: 100</div>
 
 <script>
-let coins = 100;
-let bet = 1;
-let lang = 'en';
-const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
-
-const texts = {
-  en: { spin: "SPIN", continue: "CONTINUE", won: "You won", tryAgain: "Try again!", coins: "Coins", notEnough: "Not enough coins!", watchAd: "WATCH AD → GET COINS" },
-  ar: { spin: "دوران", continue: "استمر", won: "لقد ربحت", tryAgain: "حاول مرة أخرى!", coins: "عملات", notEnough: "عملات غير كافية!", watchAd: "شاهد الإعلان → احصل على عملات" }
+/* LANGUAGE */
+const text = {
+  en: {
+    subtitle: "Entertainment only – No real money gambling",
+    spin: "SPIN",
+    continue: "CONTINUE",
+    tryAgain: "Try again!",
+    notEnough: "Not enough coins!"
+  },
+  ar: {
+    subtitle: "للتسلية فقط – لا يوجد قمار بأموال حقيقية",
+    spin: "لف",
+    continue: "استمرار",
+    tryAgain: "حاول مرة أخرى!",
+    notEnough: "عملات غير كافية!"
+  }
 };
 
-function setLanguage(l) {
+let lang = "en";
+
+/* GAME STATE */
+let coins = 100;
+let bet = 1;
+let waiting = false;
+const symbols = ["🍒", "🍋", "🍉"];
+
+/* LANGUAGE SWITCH */
+function setLang(l) {
   lang = l;
-  document.body.className = l === 'ar' ? 'rtl' : '';
-  document.getElementById("spinBtn").innerText = texts[lang].spin;
-  document.getElementById("continueBtn").innerText = texts[lang].continue;
-  document.getElementById("rewardBtn").innerText = texts[lang].watchAd;
+  document.body.className = l === "ar" ? "rtl" : "";
+  document.getElementById("subtitle").innerText = text[l].subtitle;
+  document.getElementById("spinBtn").innerText = text[l].spin;
+  document.getElementById("continueBtn").innerText = text[l].continue;
 }
 
-function setBet(value) {
-  bet = value;
-  document.querySelectorAll(".bet-btn").forEach(btn => btn.classList.remove("active"));
+/* BET */
+function setBet(v) {
+  if (waiting) return;
+  bet = v;
+  document.querySelectorAll(".bet-btn").forEach(b => b.classList.remove("active"));
   event.target.classList.add("active");
 }
 
+/* SPIN */
 function spin() {
-  if (coins < bet) { showMessage(texts[lang].notEnough); return; }
-  coins -= bet; updateCoins();
+  if (waiting) return;
+  if (coins < bet) {
+    showMessage(text[lang].notEnough);
+    return;
+  }
+
+  coins -= bet;
+  updateCoins();
 
   const slot = document.getElementById("slot");
   slot.classList.add("spinning");
 
-  let reels = [];
-  let spinCount = 0;
+  setTimeout(() => {
+    let s1 = symbols[rand()];
+    let s2 = symbols[rand()];
+    let s3 = symbols[rand()];
 
-  function spinReel(i) {
-    reels[i] = symbols[Math.floor(Math.random() * symbols.length)];
-    slot.innerText = reels.join(" ");
-    spinCount++;
-    if (spinCount < symbols.length) setTimeout(() => spinReel(i+1), 150);
-    else finishSpin();
-  }
-
-  spinReel(0);
-
-  function finishSpin() {
+    slot.innerText = `${s1} ${s2} ${s3}`;
     slot.classList.remove("spinning");
-    if (reels[0] === reels[1] && reels[1] === reels[2]) {
+
+    if (s1 === s2 && s2 === s3) {
       let win = bet * 10;
-      animateCoins(win);
-      showMessage(`${texts[lang].won} ${win} ${texts[lang].coins}!`);
-      document.getElementById("spinBtn").disabled = true;
+      coins += win;
+      updateCoins();
+      showMessage(`🎉 You won ${win} coins!`);
+      waiting = true;
       document.getElementById("continueBtn").style.display = "inline-block";
     } else {
-      showMessage(texts[lang].tryAgain);
-      updateCoins();
+      showMessage(text[lang].tryAgain);
     }
-  }
+  }, 700);
 }
 
+/* CONTINUE */
 function continueGame() {
-  document.getElementById("message").innerText = "";
-  document.getElementById("spinBtn").disabled = false;
+  waiting = false;
   document.getElementById("continueBtn").style.display = "none";
+  document.getElementById("message").innerText = "";
 }
 
+/* WATCH AD (SIMULATED) */
 function watchAd() {
-  showMessage(lang==='en'? "Watching ad..." : "جارٍ مشاهدة الإعلان...");
-  document.getElementById("rewardBtn").disabled = true;
+  showMessage("🎥 Watching ad...");
   setTimeout(() => {
-    let reward = 10;
-    animateCoins(reward);
-    showMessage(`${texts[lang].won} ${reward} ${texts[lang].coins}!`);
-    document.getElementById("rewardBtn").disabled = false;
+    coins += 50;
+    updateCoins();
+    showMessage("🎁 +50 coins added!");
   }, 2000);
 }
 
-function updateCoins() {
-  document.getElementById("coins").innerText = texts[lang].coins + ": " + coins;
+/* BONUS ITEMS */
+function spawnBonus() {
+  const bonus = document.createElement("div");
+  bonus.className = "bonus";
+  const rewards = ["⭐", "💰", "🍀"];
+  bonus.innerText = rewards[rand()];
+  bonus.style.left = Math.random() * (window.innerWidth - 40) + "px";
+  bonus.style.top = Math.random() * (window.innerHeight - 40) + "px";
+
+  bonus.onclick = () => {
+    coins += 5;
+    updateCoins();
+    bonus.remove();
+  };
+
+  document.body.appendChild(bonus);
+  setTimeout(() => bonus.remove(), 5000);
 }
 
-function showMessage(text) { document.getElementById("message").innerText = text; }
+setInterval(spawnBonus, 8000);
 
-function animateCoins(amount) {
-  let start = coins;
-  let end = coins + amount;
-  let current = start;
-  let step = Math.ceil(amount / 20);
-  let interval = setInterval(() => {
-    current += step;
-    if (current >= end) { current = end; clearInterval(interval); }
-    coins = current;
-    updateCoins();
-  }, 30);
+/* HELPERS */
+function updateCoins() {
+  document.getElementById("coins").innerText = "Coins: " + coins;
+}
+
+function showMessage(t) {
+  document.getElementById("message").innerText = t;
+}
+
+function rand() {
+  return Math.floor(Math.random() * symbols.length);
 }
 </script>
 
