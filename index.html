@@ -18,68 +18,39 @@ body{
 body.golden{
   background:radial-gradient(circle at top,#6b5500 0%,#2b1d00 60%);
 }
+.rtl{direction:rtl}
 
-h1{
-  margin:4px 0 2px;
-  font-size:34px;
-  text-shadow:0 0 15px gold;
-}
-.subtitle{
-  font-size:12px;
-  color:#bbb;
-  margin-bottom:4px;
-}
+h1{margin:4px 0 2px;font-size:34px;text-shadow:0 0 15px gold}
+.subtitle{font-size:12px;color:#bbb;margin-bottom:4px}
 
-.lang-btn{
-  padding:4px 10px;
-  font-size:13px;
-  margin:2px;
-  cursor:pointer;
-}
+.lang-btn{padding:4px 10px;font-size:13px;margin:2px;cursor:pointer}
 
 .side{
-  position:fixed;
-  top:70px;
-  width:70px;
-  font-size:42px;
-  opacity:.7;
-  animation:rotate 14s linear infinite;
+  position:fixed;top:70px;width:70px;font-size:42px;
+  opacity:.7;animation:rotate 14s linear infinite
 }
 .side.l1{left:2px}
 .side.l2{left:80px;animation-duration:18s}
 .side.r1{right:2px}
 .side.r2{right:80px;animation-duration:20s}
-
-@keyframes rotate{
-  from{transform:rotate(0)}
-  to{transform:rotate(360deg)}
-}
+@keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
 .casino-frame{
-  margin:6px auto;
-  padding:14px;
-  width:300px;
+  margin:6px auto;padding:14px;width:300px;
   background:linear-gradient(145deg,#111,#000);
   border-radius:18px;
-  box-shadow:0 0 15px gold,inset 0 0 20px #000;
+  box-shadow:0 0 15px gold,inset 0 0 20px #000
 }
 .slot{
-  font-size:54px;
-  background:#000;
-  padding:12px;
-  border-radius:12px;
-  border:3px solid gold;
+  font-size:54px;background:#000;padding:12px;
+  border-radius:12px;border:3px solid gold
 }
 .spinning{animation:flash .15s infinite}
 @keyframes flash{50%{box-shadow:0 0 20px gold}}
 
 button{
-  padding:10px 18px;
-  font-size:15px;
-  margin:4px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
+  padding:10px 18px;font-size:15px;margin:4px;
+  border-radius:8px;border:none;cursor:pointer
 }
 .bet-btn{background:#222;color:gold;border:1px solid #555}
 .bet-btn.active{background:gold;color:#000}
@@ -98,22 +69,15 @@ button{
 #goldenTimer{font-size:14px;color:gold;display:none}
 
 .bonus{
-  position:fixed;
-  font-size:32px;
-  cursor:pointer;
-  animation:float 3s ease-in-out infinite;
+  position:fixed;font-size:32px;cursor:pointer;
+  animation:float 3s ease-in-out infinite
 }
-.bonus small{
-  display:block;
-  font-size:12px;
-  color:red;
-}
+.bonus small{display:block;font-size:12px;color:red}
 @keyframes float{
   0%{transform:translateY(0);opacity:.8}
   50%{transform:translateY(-14px);opacity:1}
   100%{transform:translateY(0);opacity:.8}
 }
-.rtl{direction:rtl}
 </style>
 </head>
 
@@ -144,9 +108,7 @@ button{
 
 <div id="jackpotWrap">
   <small id="jackpotText"></small>
-  <div id="jackpotBarOuter">
-    <div id="jackpotBar"></div>
-  </div>
+  <div id="jackpotBarOuter"><div id="jackpotBar"></div></div>
 </div>
 
 <div id="goldenTimer"></div>
@@ -162,54 +124,54 @@ button{
 <div id="coins"></div>
 
 <script>
-/* ---------- TEXT ---------- */
 const TEXT={
  en:{
   subtitle:"Entertainment only – No real money gambling",
-  spin:"SPIN",
-  cont:"CONTINUE",
-  coins:"Coins",
-  jackpot:"🎰 Jackpot",
+  spin:"SPIN",cont:"CONTINUE",
+  coins:"Coins",jackpot:"🎰 Jackpot",
   notEnough:"Not enough coins!",
   tryAgain:"Try again!",
   watch:"🎥 Watch Ad → Get 50 Coins",
-  golden:"🌟 Golden Minute",
+  golden:"🌟 Golden Minute"
  },
  ar:{
   subtitle:"للتسلية فقط – لا يوجد قمار بأموال حقيقية",
-  spin:"لف",
-  cont:"استمرار",
-  coins:"العملات",
-  jackpot:"🎰 الجائزة الكبرى",
+  spin:"لف",cont:"استمرار",
+  coins:"العملات",jackpot:"🎰 الجائزة الكبرى",
   notEnough:"عملات غير كافية!",
   tryAgain:"حاول مرة أخرى!",
   watch:"🎥 شاهد الإعلان → احصل على 50 عملة",
-  golden:"🌟 الدقيقة الذهبية",
+  golden:"🌟 الدقيقة الذهبية"
  }
 };
 
-let lang="en";
-let coins=100,bet=1,waiting=false;
+let lang="en",coins=100,bet=1,waiting=false;
 let jackpot=0,spins=0;
 let golden=false,goldenTime=0,goldenInt;
 const symbols=["🍒","🍋","🍉"];
 
-/* ---------- INIT ---------- */
-setLang("en");
-updateCoins();
+const subtitle=document.getElementById("subtitle");
+const spinBtn=document.getElementById("spinBtn");
+const continueBtn=document.getElementById("continueBtn");
+const rewardBtn=document.getElementById("rewardBtn");
+const jackpotText=document.getElementById("jackpotText");
+const coinsDiv=document.getElementById("coins");
+const messageDiv=document.getElementById("message");
+const goldenTimer=document.getElementById("goldenTimer");
 
-/* ---------- LANGUAGE ---------- */
+setLang("en");updateCoins();
+
 function setLang(l){
  lang=l;
- document.body.className=l==="ar"?"rtl":"";
+ document.body.classList.toggle("rtl",l==="ar");
  subtitle.innerText=TEXT[l].subtitle;
  spinBtn.innerText=TEXT[l].spin;
  continueBtn.innerText=TEXT[l].cont;
  rewardBtn.innerText=TEXT[l].watch;
  jackpotText.innerText=TEXT[l].jackpot;
+ updateCoins();
 }
 
-/* ---------- GAME ---------- */
 function setBet(v){
  if(waiting)return;
  bet=v;
@@ -220,7 +182,6 @@ function setBet(v){
 function spin(){
  if(waiting)return;
  if(coins<bet){msg(TEXT[lang].notEnough);return;}
-
  coins-=bet;spins++;
  jackpot+=5;
  if(jackpot>=100){
@@ -229,11 +190,10 @@ function spin(){
   msg("🎰 JACKPOT!");
  }
  updateCoins();
- jackpotBar.style.width=jackpot+"%";
-
+ document.getElementById("jackpotBar").style.width=jackpot+"%";
  if(!golden && spins%25===0) startGolden();
 
- const s=slot;
+ const s=document.getElementById("slot");
  s.classList.add("spinning");
  setTimeout(()=>{
   let a=symbols[r()],b=symbols[r()],c=symbols[r()];
@@ -260,11 +220,10 @@ function watchAd(){
  setTimeout(()=>{
   coins+=golden?100:50;
   updateCoins();
-  msg("🎁 +"+(golden?100:50));
+  msg(`🎁 +${golden?100:50}`);
  },2000);
 }
 
-/* ---------- GOLDEN ---------- */
 function startGolden(){
  golden=true;goldenTime=60;
  document.body.classList.add("golden");
@@ -283,7 +242,6 @@ function startGolden(){
  },1000);
 }
 
-/* ---------- BONUS ---------- */
 function spawnBonus(){
  const types=[
   {e:"💎",v:golden?50:25,pos:true},
@@ -309,9 +267,8 @@ function spawnBonus(){
 }
 setInterval(spawnBonus,7000);
 
-/* ---------- HELPERS ---------- */
-function updateCoins(){coinsEl.innerText=TEXT[lang].coins+": "+coins;}
-function msg(t){message.innerText=t;}
+function updateCoins(){coinsDiv.innerText=TEXT[lang].coins+": "+coins;}
+function msg(t){messageDiv.innerText=t;}
 function r(){return Math.floor(Math.random()*symbols.length);}
 </script>
 
