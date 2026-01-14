@@ -61,19 +61,87 @@ button{
 }
 </style>
 <script>
-let coins = localStorage.getItem("coins") 
-  ? parseInt(localStorage.getItem("coins")) 
-  : 0;
+/* STATE */
+let coins = localStorage.getItem("coins") ? parseInt(localStorage.getItem("coins")) : 0;
+let bet = 1, waiting = false, spins = 0;
+let lang = "en";
+const symbols = ["🍒","🍋","🍉"];
 
-function updateCoins(amount) {
-  coins += amount;
-  localStorage.setItem("coins", coins);
-  document.getElementById("coinCount").innerText = coins;
+/* ELEMENTS */
+const slot = document.getElementById("slot");
+const coinCount = document.getElementById("coinCount");
+const msgDiv = document.getElementById("message");
+const subtitle = document.getElementById("subtitle");
+
+/* TEXT */
+const TEXT = {
+ en:{
+  subtitle:"Entertainment only – No real money gambling",
+  spin:"SPIN",
+  cont:"CONTINUE",
+  coins:"Coins",
+  win:"You won",
+  tryAgain:"Try again!",
+  notEnough:"Not enough coins!",
+  ad:"🎥 Watch Ad → Get Coins"
+ }
+};
+
+/* INIT */
+updateCoins(0);
+setLang("en");
+
+/* FUNCTIONS */
+function updateCoins(amount){
+ coins += amount;
+ localStorage.setItem("coins", coins);
+ coinCount.innerText = coins;
 }
 
-window.onload = () => {
-  document.getElementById("coinCount").innerText = coins;
-};
+function setLang(l){
+ lang = l;
+ subtitle.innerText = TEXT[l].subtitle;
+ msgDiv.innerText = "";
+}
+
+function spin(){
+ if(waiting) return;
+ if(coins < bet){ msg(TEXT[lang].notEnough); return; }
+
+ updateCoins(-bet);
+ spins++;
+
+ const a=symbols[r()], b=symbols[r()], c=symbols[r()];
+ slot.innerText = `${a} ${b} ${c}`;
+
+ if(a===b && b===c){
+  updateCoins(bet*10);
+  msg(TEXT[lang].win+" "+(bet*10));
+  waiting=true;
+  document.getElementById("continueBtn").style.display="inline-block";
+ } else {
+  msg(TEXT[lang].tryAgain);
+ }
+}
+
+function continueGame(){
+ waiting=false;
+ document.getElementById("continueBtn").style.display="none";
+ msg("");
+}
+
+function watchAd(){
+ msg("🎥 Watching ad...");
+ setTimeout(()=>{ updateCoins(50); msg("+50 coins"); },2000);
+}
+
+function redeem(){
+ if(coins < 10000){ alert("Need 10,000 coins"); return; }
+ alert("Redemption request submitted");
+}
+
+function msg(t){ msgDiv.innerText = t; }
+function r(){ return Math.floor(Math.random()*symbols.length); }
 </script>
 
 
@@ -96,6 +164,16 @@ window.onload = () => {
 </div>
 
 <div class="slot" id="slot">🍒 🍋 🍉</div>
+<h3>💰 Coins: <span id="coinCount">0</span></h3>
+
+<button id="spinBtn" onclick="spin()">SPIN</button>
+<button id="continueBtn" onclick="continueGame()" style="display:none">CONTINUE</button>
+
+<br><br>
+
+<button id="adBtn" onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
+<br><br>
+<button onclick="redeem()">🎁 Redeem Coins</button>
 
 <button id="spinBtn" onclick="spin()"></button>
 <button id="continueBtn" onclick="continueGame()"></button>
