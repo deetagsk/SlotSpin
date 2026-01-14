@@ -27,13 +27,7 @@ h1 {
   margin-bottom: 4px;
 }
 
-.lang-btn {
-  padding: 4px 10px;
-  font-size: 13px;
-  margin: 2px;
-}
-
-/* SIDE DECORATIONS */
+/* SIDE DECOR */
 .side {
   position: fixed;
   top: 70px;
@@ -43,7 +37,6 @@ h1 {
   animation: rotate 14s linear infinite;
   line-height: 1.4;
 }
-
 .side.left1 { left: 2px; }
 .side.left2 { left: 80px; animation-duration: 18s; }
 .side.right1 { right: 2px; }
@@ -62,7 +55,6 @@ h1 {
   background: linear-gradient(145deg, #111, #000);
   border-radius: 18px;
   box-shadow: 0 0 15px gold, inset 0 0 20px #000;
-  z-index: 2;
 }
 
 .slot {
@@ -127,35 +119,47 @@ button {
   min-height: 22px;
 }
 
-/* BONUS OBJECTS */
+/* JACKPOT */
+#jackpotWrap {
+  margin: 6px auto;
+  width: 260px;
+}
+#jackpotWrap small { font-size: 13px; }
+#jackpotBarOuter {
+  background: #333;
+  height: 10px;
+  border-radius: 6px;
+}
+#jackpotBar {
+  height: 10px;
+  width: 0%;
+  background: gold;
+  border-radius: 6px;
+}
+
+/* BONUS */
 .bonus {
   position: fixed;
   font-size: 32px;
   cursor: pointer;
   animation: float 3s ease-in-out infinite;
-  z-index: 1;
-  text-align: center;
 }
-
 .bonus small {
   display: block;
   font-size: 12px;
   color: red;
 }
-
 @keyframes float {
   0% { transform: translateY(0); opacity: 0.8; }
   50% { transform: translateY(-14px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.8; }
 }
-
-.rtl { direction: rtl; }
 </style>
 </head>
 
 <body>
 
-<!-- SIDE CASINO FEEL -->
+<!-- SIDE DECOR -->
 <div class="side left1">🎰 ⭐ 💎</div>
 <div class="side left2">🍒 🔔 💰</div>
 <div class="side right1">💎 🍀 🎲</div>
@@ -174,6 +178,13 @@ button {
   <div class="slot" id="slot">🍒 🍋 🍉</div>
 </div>
 
+<div id="jackpotWrap">
+  <small>🎰 Jackpot</small>
+  <div id="jackpotBarOuter">
+    <div id="jackpotBar"></div>
+  </div>
+</div>
+
 <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN</button>
 <button id="continueBtn" onclick="continueGame()">CONTINUE</button>
 
@@ -185,10 +196,10 @@ button {
 <div id="coins">Coins: 100</div>
 
 <script>
-let coins = 100;
-let bet = 1;
-let waiting = false;
-const symbols = ["🍒","🍋","🍉"];
+let coins=100, bet=1, waiting=false;
+let jackpot=0;
+const JACKPOT_REWARD=100;
+const symbols=["🍒","🍋","🍉"];
 
 function setBet(v){
   if(waiting) return;
@@ -200,16 +211,30 @@ function setBet(v){
 function spin(){
   if(waiting) return;
   if(coins<bet){msg("Not enough coins");return;}
-  coins-=bet; upd();
+
+  coins-=bet;
+  jackpot+=5;
+  if(jackpot>=100){
+    jackpot=0;
+    coins+=JACKPOT_REWARD;
+    msg("🎰 JACKPOT! +100 coins!");
+  }
+  upd();
+
+  document.getElementById("jackpotBar").style.width=jackpot+"%";
+
   const s=document.getElementById("slot");
   s.classList.add("spinning");
+
   setTimeout(()=>{
     let a=symbols[r()],b=symbols[r()],c=symbols[r()];
     s.innerText=`${a} ${b} ${c}`;
     s.classList.remove("spinning");
+
     if(a===b&&b===c){
       let w=bet*10;
-      coins+=w; upd();
+      coins+=w;
+      upd();
       msg(`🎉 You won ${w} coins!`);
       waiting=true;
       document.getElementById("continueBtn").style.display="inline-block";
@@ -228,11 +253,7 @@ function watchAd(){
   setTimeout(()=>{coins+=50;upd();msg("🎁 +50 coins!");},2000);
 }
 
-/* BONUS SPAWN */
 function spawnBonus(){
-  const b=document.createElement("div");
-  b.className="bonus";
-
   const types=[
     {e:"💎",v:25,t:""},
     {e:"🐭",v:5,t:""},
@@ -241,25 +262,18 @@ function spawnBonus(){
     {e:"🦁",v:-5,t:"لا تلمس"},
     {e:"🎁",v:-10,t:"لا تلمس"}
   ];
-
-  const pick=types[Math.floor(Math.random()*types.length)];
-  b.innerHTML=pick.e+(pick.t?`<small>${pick.t}</small>`:"");
+  const p=types[r()];
+  const b=document.createElement("div");
+  b.className="bonus";
+  b.innerHTML=p.e+(p.t?`<small>${p.t}</small>`:"");
   b.style.left=Math.random()*(innerWidth-60)+"px";
   b.style.top=Math.random()*(innerHeight-80)+"px";
-
-  b.onclick=()=>{
-    coins+=pick.v;
-    upd();
-    msg(pick.v>0?`+${pick.v} coins!`:`${pick.v} coins!`);
-    b.remove();
-  };
-
+  b.onclick=()=>{coins+=p.v;upd();msg(p.v>0?`+${p.v}`:`${p.v}`);b.remove();};
   document.body.appendChild(b);
   setTimeout(()=>b.remove(),6000);
 }
 setInterval(spawnBonus,7000);
 
-/* HELPERS */
 function upd(){document.getElementById("coins").innerText="Coins: "+coins;}
 function msg(t){document.getElementById("message").innerText=t;}
 function r(){return Math.floor(Math.random()*symbols.length);}
