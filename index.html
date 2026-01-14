@@ -2,275 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SlotSpin – Free Slot Simulator</title>
+<title>SlotSpin</title>
 
 <style>
-body{
-  margin:0;
-  padding:8px 8px 18px;
-  background:radial-gradient(circle at top,#222 0%,#000 60%);
-  color:#ffd700;
-  font-family:Arial,sans-serif;
-  text-align:center;
-  overflow-x:hidden;
-  transition:background .5s;
+body {
+  margin: 0;
+  padding: 20px;
+  background: #000;
+  color: gold;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
-body.golden{
-  background:radial-gradient(circle at top,#6b5500 0%,#2b1d00 60%);
+.rtl { direction: rtl; }
+
+h1 { margin-bottom: 5px; }
+.subtitle { font-size: 14px; color: #bbb; }
+
+button {
+  padding: 10px 18px;
+  margin: 6px;
+  font-size: 16px;
+  cursor: pointer;
 }
-.rtl{direction:rtl}
 
-h1{margin:4px 0 2px;font-size:34px;text-shadow:0 0 15px gold}
-.subtitle{font-size:12px;color:#bbb;margin-bottom:4px}
-
-.lang-btn{padding:4px 10px;font-size:13px;margin:2px;cursor:pointer}
-
-.side{
-  position:fixed;top:70px;width:70px;font-size:42px;
-  opacity:.7;animation:rotate 14s linear infinite
+.slot {
+  font-size: 60px;
+  margin: 20px 0;
 }
-.side.l1{left:2px}
-.side.l2{left:80px;animation-duration:18s}
-.side.r1{right:2px}
-.side.r2{right:80px;animation-duration:20s}
-@keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-.casino-frame{
-  margin:6px auto;padding:14px;width:300px;
-  background:linear-gradient(145deg,#111,#000);
-  border-radius:18px;
-  box-shadow:0 0 15px gold,inset 0 0 20px #000
-}
-.slot{
-  font-size:54px;background:#000;padding:12px;
-  border-radius:12px;border:3px solid gold
-}
-.spinning{animation:flash .15s infinite}
-@keyframes flash{50%{box-shadow:0 0 20px gold}}
-
-button{
-  padding:10px 18px;font-size:15px;margin:4px;
-  border-radius:8px;border:none;cursor:pointer
-}
-.bet-btn{background:#222;color:gold;border:1px solid #555}
-.bet-btn.active{background:gold;color:#000}
-.spin-btn{background:linear-gradient(#ffeb3b,#f57f17);font-weight:bold}
-#continueBtn{display:none;background:linear-gradient(#4fc3f7,#0288d1);font-weight:bold}
-.reward-btn{background:linear-gradient(#ff9800,#e65100);font-weight:bold}
-
-#coins{font-size:20px;margin-top:4px}
-#message{font-size:17px;min-height:22px}
-
-#jackpotWrap{margin:6px auto;width:260px}
-#jackpotWrap small{font-size:13px}
-#jackpotBarOuter{background:#333;height:10px;border-radius:6px}
-#jackpotBar{height:10px;width:0%;background:gold;border-radius:6px}
-
-#goldenTimer{font-size:14px;color:gold;display:none}
-
-.bonus{
-  position:fixed;font-size:32px;cursor:pointer;
-  animation:float 3s ease-in-out infinite
-}
-.bonus small{display:block;font-size:12px;color:red}
-@keyframes float{
-  0%{transform:translateY(0);opacity:.8}
-  50%{transform:translateY(-14px);opacity:1}
-  100%{transform:translateY(0);opacity:.8}
-}
+#coins { font-size: 20px; margin-top: 10px; }
 </style>
 </head>
 
 <body>
 
-<div class="side l1">🎰 ⭐ 💎</div>
-<div class="side l2">🍒 🔔 💰</div>
-<div class="side r1">💎 🍀 🎲</div>
-<div class="side r2">🎰 ⭐ 🃏</div>
-
 <h1>🎰 SlotSpin</h1>
 <div class="subtitle" id="subtitle"></div>
 
 <div>
-  <button class="lang-btn" onclick="setLang('en')">English</button>
-  <button class="lang-btn" onclick="setLang('ar')">العربية</button>
+  <button onclick="setLang('en')">English</button>
+  <button onclick="setLang('ar')">العربية</button>
 </div>
 
-<div>
-  <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
-  <button class="bet-btn" onclick="setBet(5)">BET 5</button>
-  <button class="bet-btn" onclick="setBet(10)">BET 10</button>
-</div>
+<div class="slot" id="slot">🍒 🍋 🍉</div>
 
-<div class="casino-frame">
-  <div class="slot" id="slot">🍒 🍋 🍉</div>
-</div>
+<button onclick="spin()" id="spinBtn"></button>
 
-<div id="jackpotWrap">
-  <small id="jackpotText"></small>
-  <div id="jackpotBarOuter"><div id="jackpotBar"></div></div>
-</div>
-
-<div id="goldenTimer"></div>
-
-<button class="spin-btn" id="spinBtn" onclick="spin()"></button>
-<button id="continueBtn" onclick="continueGame()"></button>
-
-<div>
-  <button class="reward-btn" id="rewardBtn" onclick="watchAd()"></button>
-</div>
-
-<div id="message"></div>
 <div id="coins"></div>
+<div id="message"></div>
 
 <script>
-  alert("JS IS RUNNING");
-const TEXT={
- en:{
-  subtitle:"Entertainment only – No real money gambling",
-  spin:"SPIN",cont:"CONTINUE",
-  coins:"Coins",jackpot:"🎰 Jackpot",
-  notEnough:"Not enough coins!",
-  tryAgain:"Try again!",
-  watch:"🎥 Watch Ad → Get 50 Coins",
-  golden:"🌟 Golden Minute"
- },
- ar:{
-  subtitle:"للتسلية فقط – لا يوجد قمار بأموال حقيقية",
-  spin:"لف",cont:"استمرار",
-  coins:"العملات",jackpot:"🎰 الجائزة الكبرى",
-  notEnough:"عملات غير كافية!",
-  tryAgain:"حاول مرة أخرى!",
-  watch:"🎥 شاهد الإعلان → احصل على 50 عملة",
-  golden:"🌟 الدقيقة الذهبية"
- }
+const TEXT = {
+  en: {
+    subtitle: "Entertainment only – No real money gambling",
+    spin: "SPIN",
+    coins: "Coins",
+    win: "You won 10 coins!",
+    lose: "Try again!"
+  },
+  ar: {
+    subtitle: "للتسلية فقط – لا يوجد قمار بأموال حقيقية",
+    spin: "لف",
+    coins: "العملات",
+    win: "ربحت 10 عملات!",
+    lose: "حاول مرة أخرى!"
+  }
 };
 
-let lang="en",coins=100,bet=1,waiting=false;
-let jackpot=0,spins=0;
-let golden=false,goldenTime=0,goldenInt;
-const symbols=["🍒","🍋","🍉"];
+let lang = "en";
+let coins = 100;
+const symbols = ["🍒","🍋","🍉"];
 
-const subtitle=document.getElementById("subtitle");
-const spinBtn=document.getElementById("spinBtn");
-const continueBtn=document.getElementById("continueBtn");
-const rewardBtn=document.getElementById("rewardBtn");
-const jackpotText=document.getElementById("jackpotText");
-const coinsDiv=document.getElementById("coins");
-const messageDiv=document.getElementById("message");
-const goldenTimer=document.getElementById("goldenTimer");
+const subtitle = document.getElementById("subtitle");
+const spinBtn = document.getElementById("spinBtn");
+const coinsDiv = document.getElementById("coins");
+const msgDiv = document.getElementById("message");
+const slot = document.getElementById("slot");
 
-setLang("en");updateCoins();
-
-function setLang(l){
- lang=l;
- document.body.classList.toggle("rtl",l==="ar");
- subtitle.innerText=TEXT[l].subtitle;
- spinBtn.innerText=TEXT[l].spin;
- continueBtn.innerText=TEXT[l].cont;
- rewardBtn.innerText=TEXT[l].watch;
- jackpotText.innerText=TEXT[l].jackpot;
- updateCoins();
-}
-
-function setBet(v){
- if(waiting)return;
- bet=v;
- document.querySelectorAll(".bet-btn").forEach(b=>b.classList.remove("active"));
- event.target.classList.add("active");
-}
-
-function spin(){
- if(waiting)return;
- if(coins<bet){msg(TEXT[lang].notEnough);return;}
- coins-=bet;spins++;
- jackpot+=5;
- if(jackpot>=100){
-  jackpot=0;
-  coins+=golden?200:100;
-  msg("🎰 JACKPOT!");
- }
- updateCoins();
- document.getElementById("jackpotBar").style.width=jackpot+"%";
- if(!golden && spins%25===0) startGolden();
-
- const s=document.getElementById("slot");
- s.classList.add("spinning");
- setTimeout(()=>{
-  let a=symbols[r()],b=symbols[r()],c=symbols[r()];
-  s.innerText=`${a} ${b} ${c}`;
-  s.classList.remove("spinning");
-  if(a===b&&b===c){
-    let win=bet*10*(golden?2:1);
-    coins+=win;updateCoins();
-    msg(`🎉 +${win}`);
-    waiting=true;
-    continueBtn.style.display="inline-block";
-  } else msg(TEXT[lang].tryAgain);
- },600);
-}
-
-function continueGame(){
- waiting=false;
- continueBtn.style.display="none";
- msg("");
-}
-
-function watchAd(){
- msg("🎥 ...");
- setTimeout(()=>{
-  coins+=golden?100:50;
+function setLang(l) {
+  lang = l;
+  document.body.className = l === "ar" ? "rtl" : "";
+  subtitle.innerText = TEXT[l].subtitle;
+  spinBtn.innerText = TEXT[l].spin;
   updateCoins();
-  msg(`🎁 +${golden?100:50}`);
- },2000);
+  msgDiv.innerText = "";
 }
 
-function startGolden(){
- golden=true;goldenTime=60;
- document.body.classList.add("golden");
- goldenTimer.style.display="block";
- goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
- goldenInt=setInterval(()=>{
-  goldenTime--;
-  goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
-  if(goldenTime<=0){
-    clearInterval(goldenInt);
-    golden=false;
-    document.body.classList.remove("golden");
-    goldenTimer.style.display="none";
-    msg("⏳");
+function spin() {
+  let a = symbols[rand()];
+  let b = symbols[rand()];
+  let c = symbols[rand()];
+  slot.innerText = `${a} ${b} ${c}`;
+
+  if (a === b && b === c) {
+    coins += 10;
+    msgDiv.innerText = TEXT[lang].win;
+  } else {
+    msgDiv.innerText = TEXT[lang].lose;
   }
- },1000);
+  updateCoins();
 }
 
-function spawnBonus(){
- const types=[
-  {e:"💎",v:golden?50:25,pos:true},
-  {e:"🐭",v:golden?10:5,pos:true},
-  {e:"⭐",v:golden?10:5,pos:true},
-  {e:"🚫💰",v:-10,pos:false},
-  {e:"🦁",v:-5,pos:false},
-  {e:"🎁",v:-10,pos:false}
- ];
- const p=types[r()];
- const b=document.createElement("div");
- b.className="bonus";
- b.innerHTML=p.e+(p.pos?"":"<small>لا تلمس</small>");
- b.style.left=Math.random()*(innerWidth-60)+"px";
- b.style.top=Math.random()*(innerHeight-80)+"px";
- b.onclick=()=>{
-  coins+=p.v;updateCoins();
-  msg(p.v>0?`+${p.v}`:`${p.v}`);
-  b.remove();
- };
- document.body.appendChild(b);
- setTimeout(()=>b.remove(),p.pos?3000:6000);
+function updateCoins() {
+  coinsDiv.innerText = TEXT[lang].coins + ": " + coins;
 }
-setInterval(spawnBonus,7000);
 
-function updateCoins(){coinsDiv.innerText=TEXT[lang].coins+": "+coins;}
-function msg(t){messageDiv.innerText=t;}
-function r(){return Math.floor(Math.random()*symbols.length);}
+function rand() {
+  return Math.floor(Math.random() * symbols.length);
+}
+
+/* init */
+setLang("en");
 </script>
 
 </body>
