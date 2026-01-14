@@ -24,6 +24,13 @@ h1 {
   margin-bottom: 10px;
 }
 
+.lang-btn {
+  margin: 10px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .casino-frame {
   margin: 25px auto;
   padding: 25px;
@@ -45,9 +52,7 @@ h1 {
   animation: flash 0.15s infinite;
 }
 
-@keyframes flash {
-  50% { box-shadow: 0 0 20px gold; }
-}
+@keyframes flash { 50% { box-shadow: 0 0 20px gold; } }
 
 button {
   padding: 12px 22px;
@@ -80,6 +85,13 @@ button {
   font-weight: bold;
 }
 
+#rewardBtn {
+  background: linear-gradient(#ff9800, #e65100);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px orange;
+}
+
 #coins {
   font-size: 22px;
   margin-top: 12px;
@@ -89,13 +101,21 @@ button {
   margin-top: 12px;
   font-size: 20px;
 }
+
+.rtl {
+  direction: rtl;
+}
 </style>
 </head>
 
 <body>
+<h1 id="title">🎰 SlotSpin</h1>
+<div class="subtitle" id="subtitle">Entertainment only – No real money gambling</div>
 
-<h1>🎰 SlotSpin</h1>
-<div class="subtitle">Entertainment only – No real money gambling</div>
+<div>
+  <button class="lang-btn" onclick="setLanguage('en')">English</button>
+  <button class="lang-btn" onclick="setLanguage('ar')">العربية</button>
+</div>
 
 <div>
   <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
@@ -109,6 +129,7 @@ button {
 
 <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN</button>
 <button id="continueBtn" onclick="continueGame()">CONTINUE</button>
+<button id="rewardBtn" onclick="watchAd()">WATCH AD → GET COINS</button>
 
 <div id="message"></div>
 <div id="coins">Coins: 100</div>
@@ -116,7 +137,21 @@ button {
 <script>
 let coins = 100;
 let bet = 1;
+let lang = 'en';
 const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
+
+const texts = {
+  en: { spin: "SPIN", continue: "CONTINUE", won: "You won", tryAgain: "Try again!", coins: "Coins", notEnough: "Not enough coins!", watchAd: "WATCH AD → GET COINS" },
+  ar: { spin: "دوران", continue: "استمر", won: "لقد ربحت", tryAgain: "حاول مرة أخرى!", coins: "عملات", notEnough: "عملات غير كافية!", watchAd: "شاهد الإعلان → احصل على عملات" }
+};
+
+function setLanguage(l) {
+  lang = l;
+  document.body.className = l === 'ar' ? 'rtl' : '';
+  document.getElementById("spinBtn").innerText = texts[lang].spin;
+  document.getElementById("continueBtn").innerText = texts[lang].continue;
+  document.getElementById("rewardBtn").innerText = texts[lang].watchAd;
+}
 
 function setBet(value) {
   bet = value;
@@ -125,38 +160,38 @@ function setBet(value) {
 }
 
 function spin() {
-  if (coins < bet) {
-    showMessage("Not enough coins!");
-    return;
-  }
-
-  coins -= bet;
-  updateCoins();
+  if (coins < bet) { showMessage(texts[lang].notEnough); return; }
+  coins -= bet; updateCoins();
 
   const slot = document.getElementById("slot");
   slot.classList.add("spinning");
 
-  setTimeout(() => {
-    let s1 = symbols[Math.floor(Math.random() * symbols.length)];
-    let s2 = symbols[Math.floor(Math.random() * symbols.length)];
-    let s3 = symbols[Math.floor(Math.random() * symbols.length)];
+  let reels = [];
+  let spinCount = 0;
 
-    slot.innerText = `${s1} ${s2} ${s3}`;
+  function spinReel(i) {
+    reels[i] = symbols[Math.floor(Math.random() * symbols.length)];
+    slot.innerText = reels.join(" ");
+    spinCount++;
+    if (spinCount < symbols.length) setTimeout(() => spinReel(i+1), 150);
+    else finishSpin();
+  }
+
+  spinReel(0);
+
+  function finishSpin() {
     slot.classList.remove("spinning");
-
-    if (s1 === s2 && s2 === s3) {
+    if (reels[0] === reels[1] && reels[1] === reels[2]) {
       let win = bet * 10;
-      coins += win;
-      showMessage(`🎉 You won ${win} coins!`);
-      updateCoins();
+      animateCoins(win);
+      showMessage(`${texts[lang].won} ${win} ${texts[lang].coins}!`);
       document.getElementById("spinBtn").disabled = true;
       document.getElementById("continueBtn").style.display = "inline-block";
     } else {
-      showMessage("Try again!");
+      showMessage(texts[lang].tryAgain);
       updateCoins();
-      // NO continue needed on loss ✅
     }
-  }, 700);
+  }
 }
 
 function continueGame() {
@@ -165,12 +200,34 @@ function continueGame() {
   document.getElementById("continueBtn").style.display = "none";
 }
 
-function updateCoins() {
-  document.getElementById("coins").innerText = "Coins: " + coins;
+function watchAd() {
+  showMessage(lang==='en'? "Watching ad..." : "جارٍ مشاهدة الإعلان...");
+  document.getElementById("rewardBtn").disabled = true;
+  setTimeout(() => {
+    let reward = 10;
+    animateCoins(reward);
+    showMessage(`${texts[lang].won} ${reward} ${texts[lang].coins}!`);
+    document.getElementById("rewardBtn").disabled = false;
+  }, 2000);
 }
 
-function showMessage(text) {
-  document.getElementById("message").innerText = text;
+function updateCoins() {
+  document.getElementById("coins").innerText = texts[lang].coins + ": " + coins;
+}
+
+function showMessage(text) { document.getElementById("message").innerText = text; }
+
+function animateCoins(amount) {
+  let start = coins;
+  let end = coins + amount;
+  let current = start;
+  let step = Math.ceil(amount / 20);
+  let interval = setInterval(() => {
+    current += step;
+    if (current >= end) { current = end; clearInterval(interval); }
+    coins = current;
+    updateCoins();
+  }, 30);
 }
 </script>
 
