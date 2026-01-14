@@ -60,6 +60,23 @@ button{
   100%{transform:translateY(0);opacity:.8}
 }
 </style>
+<script>
+let coins = localStorage.getItem("coins") 
+  ? parseInt(localStorage.getItem("coins")) 
+  : 0;
+
+function updateCoins(amount) {
+  coins += amount;
+  localStorage.setItem("coins", coins);
+  document.getElementById("coinCount").innerText = coins;
+}
+
+window.onload = () => {
+  document.getElementById("coinCount").innerText = coins;
+};
+</script>
+
+
 </head>
 
 <body>
@@ -117,6 +134,11 @@ const TEXT={
   golden:"🌟 الدقيقة الذهبية"
  }
 };
+<h3>💰 Coins: <span id="coinCount">0</span></h3>
+
+<button onclick="rewardAd()">🎬 Watch Ad & Earn Coins</button>
+<br><br>
+<button onclick="redeem()">🎁 Redeem Coins</button>
 
 let lang="en",coins=100,bet=1,waiting=false;
 let spins=0,golden=false,goldenTime=0,goldenInt;
@@ -257,6 +279,25 @@ function r(){return Math.floor(Math.random()*symbols.length);}
 /* INTERVALS */
 setInterval(spawnMystery,7000);
 setInterval(spawnGhost,25000);
+</script>
+<script>
+function rewardAd() {
+  alert("Ad finished! You earned 10 coins");
+  updateCoins(10);
+}
+
+function redeem() {
+  if (coins < 10000) {
+    alert("You need at least 10,000 coins to redeem.");
+    return;
+  }
+
+  let email = prompt("Enter your email for Amazon Gift Card:");
+  if (!email) return;
+
+  alert("Redemption request submitted! Processing within 7 days.");
+  console.log("Redeem request:", email, coins);
+}
 </script>
 
 </body>
