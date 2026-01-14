@@ -4,26 +4,17 @@
 <meta charset="UTF-8">
 <title>SlotSpin</title>
 
-<!-- AdSense verification -->
 <meta name="google-adsense-account" content="ca-pub-3954763823070860">
-  <meta name="google-adsense-account" content="ca-pub-3954763823070860">
-
 
 <style>
 body{
   margin:0;
-  padding:16px;
+  padding:20px;
   background:#000;
   color:gold;
-  font-family:Arial,sans-serif;
+  font-family:Arial, sans-serif;
   text-align:center;
-  transition:background .5s;
 }
-body.golden{background:#3b2f00}
-.rtl{direction:rtl}
-
-h1{margin-bottom:4px}
-.subtitle{font-size:14px;color:#bbb}
 
 button{
   padding:10px 16px;
@@ -32,33 +23,30 @@ button{
   cursor:pointer;
 }
 
-.bet-btn{background:#222;color:gold;border:1px solid #555}
-.bet-btn.active{background:gold;color:#000}
-
-.slot{font-size:60px;margin:20px 0}
-
-#coins{font-size:20px;margin-top:10px}
-#message{font-size:18px;min-height:24px;margin-top:8px}
-
-#continueBtn{display:none}
-#goldenTimer{font-size:14px;color:gold;display:none}
-
-/* Mystery */
-.mystery{
-  position:fixed;
-  font-size:36px;
-  cursor:pointer;
-  animation:float 3s ease-in-out infinite;
+.bet-btn{
+  background:#222;
+  color:gold;
+  border:1px solid #555;
 }
-.mystery small{
-  display:block;
-  font-size:12px;
-  color:red;
+.bet-btn.active{
+  background:gold;
+  color:#000;
 }
-@keyframes float{
-  0%{transform:translateY(0);opacity:.8}
-  50%{transform:translateY(-12px);opacity:1}
-  100%{transform:translateY(0);opacity:.8}
+
+#slot{
+  font-size:60px;
+  margin:20px 0;
+}
+
+#coins{
+  font-size:20px;
+  margin-top:10px;
+}
+
+#message{
+  font-size:18px;
+  min-height:24px;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -66,198 +54,133 @@ button{
 <body>
 
 <h1>🎰 SlotSpin</h1>
-<div class="subtitle" id="subtitle"></div>
+<div id="subtitle">Entertainment only – No real money gambling</div>
 
-<div>
-  <button onclick="setLang('en')">English</button>
-  <button onclick="setLang('ar')">العربية</button>
-</div>
-
+<!-- BET -->
 <div>
   <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
   <button class="bet-btn" onclick="setBet(5)">BET 5</button>
   <button class="bet-btn" onclick="setBet(10)">BET 10</button>
 </div>
 
-<div class="slot" id="slot">🍒 🍋 🍉</div>
+<!-- SLOT -->
+<div id="slot">🍒 🍋 🍉</div>
 
-<button id="spinBtn" onclick="spin()"></button>
-<button id="continueBtn" onclick="continueGame()"></button>
+<!-- CONTROLS -->
+<button onclick="spin()">SPIN</button>
+<button id="continueBtn" onclick="continueGame()" style="display:none">CONTINUE</button>
 
-<div>
-  <button id="adBtn" onclick="watchAd()"></button>
-</div>
+<!-- COINS -->
+<div id="coins">Coins: 0</div>
 
-<div id="goldenTimer"></div>
+<!-- ADS & REWARDS -->
+<button onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
+<br><br>
+<button onclick="redeem()">🎁 Redeem Coins</button>
+
 <div id="message"></div>
-<div id="coins"></div>
 
 <script>
-/* TEXT */
-const TEXT={
- en:{
-  subtitle:"Entertainment only – No real money gambling",
-  spin:"SPIN",
-  cont:"CONTINUE",
-  coins:"Coins",
-  win:"You won",
-  tryAgain:"Try again!",
-  notEnough:"Not enough coins!",
-  ad:"🎥 Watch Ad → Get Coins",
-  golden:"🌟 Golden Minute"
- },
- ar:{
-  subtitle:"للتسلية فقط – لا يوجد قمار بأموال حقيقية",
-  spin:"لف",
-  cont:"استمرار",
-  coins:"العملات",
-  win:"ربحت",
-  tryAgain:"حاول مرة أخرى!",
-  notEnough:"عملات غير كافية!",
-  ad:"🎥 شاهد الإعلان → احصل على عملات",
-  golden:"🌟 الدقيقة الذهبية"
- }
-};
+/* ======================
+   STATE (LOCAL STORAGE)
+====================== */
+let coins = localStorage.getItem("coins")
+  ? parseInt(localStorage.getItem("coins"))
+  : 100; // start bonus
 
-let lang="en",coins=100,bet=1,waiting=false;
-let spins=0,golden=false,goldenTime=0,goldenInt;
-const symbols=["🍒","🍋","🍉"];
+let bet = 1;
+let waiting = false;
+const symbols = ["🍒","🍋","🍉"];
 
-const subtitle=document.getElementById("subtitle");
-const spinBtn=document.getElementById("spinBtn");
-const continueBtn=document.getElementById("continueBtn");
-const coinsDiv=document.getElementById("coins");
-const msgDiv=document.getElementById("message");
-const adBtn=document.getElementById("adBtn");
-const goldenTimer=document.getElementById("goldenTimer");
+/* ======================
+   ELEMENTS
+====================== */
+const slot = document.getElementById("slot");
+const coinsDiv = document.getElementById("coins");
+const msgDiv = document.getElementById("message");
+const continueBtn = document.getElementById("continueBtn");
 
-setLang("en");updateCoins();
+/* ======================
+   INIT
+====================== */
+updateCoins(0);
 
-/* LANGUAGE */
-function setLang(l){
- lang=l;
- document.body.className=l==="ar"?"rtl":"";
- subtitle.innerText=TEXT[l].subtitle;
- spinBtn.innerText=TEXT[l].spin;
- continueBtn.innerText=TEXT[l].cont;
- adBtn.innerText=TEXT[l].ad;
- updateCoins();
- msgDiv.innerText="";
+/* ======================
+   FUNCTIONS
+====================== */
+function updateCoins(amount){
+  coins += amount;
+  if(coins < 0) coins = 0;
+  localStorage.setItem("coins", coins);
+  coinsDiv.innerText = "Coins: " + coins;
 }
 
-/* BET */
 function setBet(v){
- if(waiting)return;
- bet=v;
- document.querySelectorAll(".bet-btn").forEach(b=>b.classList.remove("active"));
- event.target.classList.add("active");
+  if(waiting) return;
+  bet = v;
+  document.querySelectorAll(".bet-btn")
+    .forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
-/* SPIN */
 function spin(){
- if(waiting)return;
- if(coins<bet){msg(TEXT[lang].notEnough);return;}
- coins-=bet;spins++;
- updateCoins();
+  if(waiting) return;
 
- if(!golden && spins%25===0) startGolden();
-
- let a=symbols[r()],b=symbols[r()],c=symbols[r()];
- slot.innerText=`${a} ${b} ${c}`;
-
- if(a===b&&b===c){
-  let win=bet*10*(golden?2:1);
-  coins+=win;updateCoins();
-  msg(`${TEXT[lang].win} ${win}`);
-  waiting=true;
-  continueBtn.style.display="inline-block";
- } else msg(TEXT[lang].tryAgain);
-}
-
-/* CONTINUE */
-function continueGame(){
- waiting=false;
- continueBtn.style.display="none";
- msg("");
-}
-
-/* WATCH AD */
-function watchAd(){
- msg("🎥 ...");
- setTimeout(()=>{
-  let reward=golden?100:50;
-  coins+=reward;
-  updateCoins();
-  msg(`+${reward}`);
- },2000);
-}
-
-/* GOLDEN MINUTE */
-function startGolden(){
- golden=true;goldenTime=60;
- document.body.classList.add("golden");
- goldenTimer.style.display="block";
- goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
- goldenInt=setInterval(()=>{
-  goldenTime--;
-  goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
-  if(goldenTime<=0){
-    clearInterval(goldenInt);
-    golden=false;
-    document.body.classList.remove("golden");
-    goldenTimer.style.display="none";
-    msg("⏳");
+  if(coins < bet){
+    msg("Not enough coins!");
+    return;
   }
- },1000);
+
+  updateCoins(-bet);
+
+  const a = symbols[rand()];
+  const b = symbols[rand()];
+  const c = symbols[rand()];
+
+  slot.innerText = `${a} ${b} ${c}`;
+
+  if(a === b && b === c){
+    const win = bet * 10;
+    updateCoins(win);
+    msg("🎉 You won " + win + " coins!");
+    waiting = true;
+    continueBtn.style.display = "inline-block";
+  } else {
+    msg("Try again!");
+  }
 }
 
-/* MYSTERY */
-function spawnMystery(){
- const types=[
-  {e:"🐰",v:golden?10:5,pos:true,d:3000},
-  {e:"⭐",v:golden?20:10,pos:true,d:3000},
-  {e:"😈",v:-15,pos:false,d:6000,text:"Don't catch me"},
-  {e:"🐯",v:-5,pos:false,d:6000}
- ];
- const p=types[r()];
- const m=document.createElement("div");
- m.className="mystery";
- m.innerHTML=p.e+(p.pos?"":`<small>${p.text||"لا تلمس"}</small>`);
- place(m);
- m.onclick=()=>{coins+=p.v;updateCoins();msg(p.v);m.remove();};
- document.body.appendChild(m);
- setTimeout(()=>m.remove(),p.d);
+function continueGame(){
+  waiting = false;
+  continueBtn.style.display = "none";
+  msg("");
 }
 
-/* GHOST */
-function spawnGhost(){
- let moves=0;
- const g=document.createElement("div");
- g.className="mystery";
- g.innerHTML="👻<small>Catch me, if you can</small>";
- function move(){
-  place(g);
-  moves++;
-  if(moves>=2)setTimeout(()=>g.remove(),1000);
- }
- g.onclick=()=>{coins+=30;updateCoins();msg("+30");g.remove();};
- document.body.appendChild(g);
- move();
- setTimeout(move,1000);
+function watchAd(){
+  msg("🎥 Watching ad...");
+  setTimeout(()=>{
+    updateCoins(50);
+    msg("+50 coins added");
+  }, 2000);
 }
 
-/* HELPERS */
-function place(el){
- el.style.left=Math.random()*(innerWidth-60)+"px";
- el.style.top=Math.random()*(innerHeight-80)+"px";
+function redeem(){
+  if(coins < 10000){
+    alert("You need at least 10,000 coins to redeem an Amazon Gift Card.");
+    return;
+  }
+  alert("Redemption request submitted! Gift card will be sent within 7 days.");
 }
-function updateCoins(){coinsDiv.innerText=TEXT[lang].coins+": "+coins;}
-function msg(t){msgDiv.innerText=t;}
-function r(){return Math.floor(Math.random()*symbols.length);}
 
-/* INTERVALS */
-setInterval(spawnMystery,7000);
-setInterval(spawnGhost,25000);
+/* ======================
+   HELPERS
+====================== */
+function msg(t){
+  msgDiv.innerText = t;
+}
+function rand(){
+  return Math.floor(Math.random() * symbols.length);
+}
 </script>
 
 </body>
