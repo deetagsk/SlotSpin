@@ -6,47 +6,67 @@
 
 <style>
 body {
+  margin: 0;
+  padding: 10px 10px 20px;
   background: radial-gradient(circle at top, #222 0%, #000 60%);
   color: #ffd700;
   font-family: Arial, sans-serif;
   text-align: center;
-  padding: 20px;
   overflow-x: hidden;
 }
 
+/* HEADER */
 h1 {
-  font-size: 42px;
+  margin: 5px 0 2px;
+  font-size: 36px;
   text-shadow: 0 0 15px gold;
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 12px;
   color: #bbb;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .lang-btn {
-  margin: 5px;
-  padding: 6px 12px;
-  font-size: 14px;
-  cursor: pointer;
+  padding: 4px 10px;
+  font-size: 13px;
+  margin: 2px;
 }
 
+/* CASINO SIDE DECOR */
+.side {
+  position: fixed;
+  top: 80px;
+  width: 50px;
+  font-size: 30px;
+  opacity: 0.6;
+  animation: rotate 12s linear infinite;
+}
+
+.left { left: 5px; }
+.right { right: 5px; }
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* GAME */
 .casino-frame {
-  margin: 20px auto;
-  padding: 20px;
-  width: 320px;
+  margin: 10px auto;
+  padding: 15px;
+  width: 300px;
   background: linear-gradient(145deg, #111, #000);
   border-radius: 18px;
   box-shadow: 0 0 15px gold, inset 0 0 20px #000;
-  position: relative;
   z-index: 2;
 }
 
 .slot {
-  font-size: 64px;
+  font-size: 56px;
   background: #000;
-  padding: 18px;
+  padding: 14px;
   border-radius: 12px;
   border: 3px solid gold;
 }
@@ -60,10 +80,10 @@ h1 {
 }
 
 button {
-  padding: 12px 22px;
-  font-size: 16px;
-  margin: 6px;
-  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 15px;
+  margin: 4px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
 }
@@ -96,19 +116,19 @@ button {
 }
 
 #coins {
-  font-size: 22px;
-  margin-top: 8px;
+  font-size: 20px;
+  margin-top: 6px;
 }
 
 #message {
-  margin-top: 10px;
-  font-size: 20px;
-  min-height: 26px;
+  font-size: 18px;
+  min-height: 22px;
+  margin-top: 4px;
 }
 
-/* BONUS ITEMS */
+/* BONUS FLOAT */
 .bonus {
-  position: absolute;
+  position: fixed;
   font-size: 26px;
   cursor: pointer;
   animation: float 3s ease-in-out infinite;
@@ -116,18 +136,20 @@ button {
 }
 
 @keyframes float {
-  0% { transform: translateY(0); opacity: 0.8; }
+  0% { transform: translateY(0); opacity: 0.7; }
   50% { transform: translateY(-12px); opacity: 1; }
-  100% { transform: translateY(0); opacity: 0.8; }
+  100% { transform: translateY(0); opacity: 0.7; }
 }
 
-.rtl {
-  direction: rtl;
-}
+.rtl { direction: rtl; }
 </style>
 </head>
 
 <body>
+
+<!-- CASINO SIDE DECOR -->
+<div class="side left">🎰 ⭐ 💎</div>
+<div class="side right">💰 🔔 🍀</div>
 
 <h1 id="title">🎰 SlotSpin</h1>
 <div class="subtitle" id="subtitle">
@@ -160,7 +182,6 @@ button {
 <div id="coins">Coins: 100</div>
 
 <script>
-/* LANGUAGE */
 const text = {
   en: {
     subtitle: "Entertainment only – No real money gambling",
@@ -179,14 +200,11 @@ const text = {
 };
 
 let lang = "en";
-
-/* GAME STATE */
 let coins = 100;
 let bet = 1;
 let waiting = false;
 const symbols = ["🍒", "🍋", "🍉"];
 
-/* LANGUAGE SWITCH */
 function setLang(l) {
   lang = l;
   document.body.className = l === "ar" ? "rtl" : "";
@@ -195,7 +213,6 @@ function setLang(l) {
   document.getElementById("continueBtn").innerText = text[l].continue;
 }
 
-/* BET */
 function setBet(v) {
   if (waiting) return;
   bet = v;
@@ -203,7 +220,6 @@ function setBet(v) {
   event.target.classList.add("active");
 }
 
-/* SPIN */
 function spin() {
   if (waiting) return;
   if (coins < bet) {
@@ -218,9 +234,9 @@ function spin() {
   slot.classList.add("spinning");
 
   setTimeout(() => {
-    let s1 = symbols[rand()];
-    let s2 = symbols[rand()];
-    let s3 = symbols[rand()];
+    let s1 = symbols[r()];
+    let s2 = symbols[r()];
+    let s3 = symbols[r()];
 
     slot.innerText = `${s1} ${s2} ${s3}`;
     slot.classList.remove("spinning");
@@ -235,17 +251,15 @@ function spin() {
     } else {
       showMessage(text[lang].tryAgain);
     }
-  }, 700);
+  }, 600);
 }
 
-/* CONTINUE */
 function continueGame() {
   waiting = false;
   document.getElementById("continueBtn").style.display = "none";
   document.getElementById("message").innerText = "";
 }
 
-/* WATCH AD (SIMULATED) */
 function watchAd() {
   showMessage("🎥 Watching ad...");
   setTimeout(() => {
@@ -255,37 +269,31 @@ function watchAd() {
   }, 2000);
 }
 
-/* BONUS ITEMS */
+/* BONUS SPAWN */
 function spawnBonus() {
-  const bonus = document.createElement("div");
-  bonus.className = "bonus";
-  const rewards = ["⭐", "💰", "🍀"];
-  bonus.innerText = rewards[rand()];
-  bonus.style.left = Math.random() * (window.innerWidth - 40) + "px";
-  bonus.style.top = Math.random() * (window.innerHeight - 40) + "px";
-
-  bonus.onclick = () => {
+  const b = document.createElement("div");
+  b.className = "bonus";
+  b.innerText = ["⭐", "💰", "🍀"][r()];
+  b.style.left = Math.random() * (window.innerWidth - 30) + "px";
+  b.style.top = Math.random() * (window.innerHeight - 30) + "px";
+  b.onclick = () => {
     coins += 5;
     updateCoins();
-    bonus.remove();
+    b.remove();
   };
-
-  document.body.appendChild(bonus);
-  setTimeout(() => bonus.remove(), 5000);
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 5000);
 }
-
-setInterval(spawnBonus, 8000);
+setInterval(spawnBonus, 9000);
 
 /* HELPERS */
 function updateCoins() {
   document.getElementById("coins").innerText = "Coins: " + coins;
 }
-
 function showMessage(t) {
   document.getElementById("message").innerText = t;
 }
-
-function rand() {
+function r() {
   return Math.floor(Math.random() * symbols.length);
 }
 </script>
