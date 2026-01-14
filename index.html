@@ -67,4 +67,222 @@ button{
 <div class="subtitle" id="subtitle"></div>
 
 <div>
-  <button onclick="
+  <button onclick="setLang('en')">English</button>
+  <button onclick="setLang('ar')">العربية</button>
+</div>
+
+<div>
+  <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
+  <button class="bet-btn" onclick="setBet(5)">BET 5</button>
+  <button class="bet-btn" onclick="setBet(10)">BET 10</button>
+</div>
+
+<div class="slot" id="slot">🍒 🍋 🍉</div>
+
+<button id="spinBtn" onclick="spin()">SPIN</button>
+<button id="continueBtn" onclick="continueGame()">CONTINUE</button>
+
+<div>
+  <button id="adBtn" onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
+</div>
+
+<div style="margin-top:6px">
+  <button onclick="redeem()">🎁 Redeem Coins</button>
+</div>
+
+<div id="goldenTimer"></div>
+<div id="message"></div>
+<div id="coins"></div>
+
+<script>
+/* TEXT */
+const TEXT={
+ en:{
+  subtitle:"Entertainment only – No real money gambling",
+  spin:"SPIN",
+  cont:"CONTINUE",
+  coins:"Coins",
+  win:"You won",
+  tryAgain:"Try again!",
+  notEnough:"Not enough coins!",
+  ad:"🎥 Watch Ad → Get Coins",
+  golden:"🌟 Golden Minute"
+ },
+ ar:{
+  subtitle:"للتسلية فقط – لا يوجد قمار بأموال حقيقية",
+  spin:"لف",
+  cont:"استمرار",
+  coins:"العملات",
+  win:"ربحت",
+  tryAgain:"حاول مرة أخرى!",
+  notEnough:"عملات غير كافية!",
+  ad:"🎥 شاهد الإعلان → احصل على عملات",
+  golden:"🌟 الدقيقة الذهبية"
+ }
+};
+
+/* STATE (WITH LOCAL STORAGE) */
+let coins = localStorage.getItem("coins")
+  ? parseInt(localStorage.getItem("coins"))
+  : 100;
+
+let lang="en",bet=1,waiting=false;
+let spins=0,golden=false,goldenTime=0,goldenInt;
+const symbols=["🍒","🍋","🍉"];
+
+/* ELEMENTS */
+const subtitle=document.getElementById("subtitle");
+const spinBtn=document.getElementById("spinBtn");
+const continueBtn=document.getElementById("continueBtn");
+const coinsDiv=document.getElementById("coins");
+const msgDiv=document.getElementById("message");
+const adBtn=document.getElementById("adBtn");
+const goldenTimer=document.getElementById("goldenTimer");
+const slot=document.getElementById("slot");
+
+/* INIT */
+setLang("en");
+updateCoins();
+
+/* LANGUAGE */
+function setLang(l){
+ lang=l;
+ document.body.className=l==="ar"?"rtl":"";
+ subtitle.innerText=TEXT[l].subtitle;
+ spinBtn.innerText=TEXT[l].spin;
+ continueBtn.innerText=TEXT[l].cont;
+ adBtn.innerText=TEXT[l].ad;
+ updateCoins();
+ msg("");
+}
+
+/* BET */
+function setBet(v){
+ if(waiting)return;
+ bet=v;
+ document.querySelectorAll(".bet-btn").forEach(b=>b.classList.remove("active"));
+ event.target.classList.add("active");
+}
+
+/* SPIN */
+function spin(){
+ if(waiting)return;
+ if(coins<bet){msg(TEXT[lang].notEnough);return;}
+
+ coins-=bet;spins++;
+ updateCoins();
+
+ if(!golden && spins%25===0) startGolden();
+
+ let a=symbols[r()],b=symbols[r()],c=symbols[r()];
+ slot.innerText=`${a} ${b} ${c}`;
+
+ if(a===b&&b===c){
+  let win=bet*10*(golden?2:1);
+  coins+=win;
+  updateCoins();
+  msg(`${TEXT[lang].win} ${win}`);
+  waiting=true;
+  continueBtn.style.display="inline-block";
+ } else msg(TEXT[lang].tryAgain);
+}
+
+/* CONTINUE */
+function continueGame(){
+ waiting=false;
+ continueBtn.style.display="none";
+ msg("");
+}
+
+/* WATCH AD */
+function watchAd(){
+ msg("🎥 ...");
+ setTimeout(()=>{
+  let reward=golden?100:50;
+  coins+=reward;
+  updateCoins();
+  msg("+"+reward);
+ },2000);
+}
+
+/* REDEEM */
+function redeem(){
+ if(coins < 10000){
+  alert("You need at least 10,000 coins to redeem an Amazon Gift Card.");
+  return;
+ }
+ alert("Redemption request submitted.\nGift card will be sent within 7 days.");
+}
+
+/* GOLDEN MINUTE */
+function startGolden(){
+ golden=true;goldenTime=60;
+ document.body.classList.add("golden");
+ goldenTimer.style.display="block";
+ goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
+ goldenInt=setInterval(()=>{
+  goldenTime--;
+  goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
+  if(goldenTime<=0){
+    clearInterval(goldenInt);
+    golden=false;
+    document.body.classList.remove("golden");
+    goldenTimer.style.display="none";
+    msg("⏳");
+  }
+ },1000);
+}
+
+/* MYSTERY */
+function spawnMystery(){
+ const types=[
+  {e:"🐰",v:golden?10:5,pos:true,d:3000},
+  {e:"⭐",v:golden?20:10,pos:true,d:3000},
+  {e:"😈",v:-15,pos:false,d:6000,text:"Don't catch me"},
+  {e:"🐯",v:-5,pos:false,d:6000}
+ ];
+ const p=types[r()];
+ const m=document.createElement("div");
+ m.className="mystery";
+ m.innerHTML=p.e+(p.pos?"":`<small>${p.text||"لا تلمس"}</small>`);
+ place(m);
+ m.onclick=()=>{coins+=p.v;updateCoins();msg(p.v);m.remove();};
+ document.body.appendChild(m);
+ setTimeout(()=>m.remove(),p.d);
+}
+
+/* GHOST */
+function spawnGhost(){
+ let moves=0;
+ const g=document.createElement("div");
+ g.className="mystery";
+ g.innerHTML="👻<small>Catch me, if you can</small>";
+ function move(){
+  place(g); moves++;
+  if(moves>=2)setTimeout(()=>g.remove(),1000);
+ }
+ g.onclick=()=>{coins+=30;updateCoins();msg("+30");g.remove();};
+ document.body.appendChild(g);
+ move(); setTimeout(move,1000);
+}
+
+/* HELPERS */
+function place(el){
+ el.style.left=Math.random()*(innerWidth-60)+"px";
+ el.style.top=Math.random()*(innerHeight-80)+"px";
+}
+function updateCoins(){
+ if(coins < 0) coins = 0;
+ localStorage.setItem("coins", coins);
+ coinsDiv.innerText=TEXT[lang].coins+": "+coins;
+}
+function msg(t){msgDiv.innerText=t;}
+function r(){return Math.floor(Math.random()*symbols.length);}
+
+/* INTERVALS */
+setInterval(spawnMystery,7000);
+setInterval(spawnGhost,25000);
+</script>
+
+</body>
+</html>
