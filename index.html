@@ -7,7 +7,7 @@
 <style>
 body {
   margin: 0;
-  padding: 20px;
+  padding: 16px;
   background: #000;
   color: gold;
   font-family: Arial, sans-serif;
@@ -15,14 +15,24 @@ body {
 }
 .rtl { direction: rtl; }
 
-h1 { margin-bottom: 5px; }
+h1 { margin-bottom: 4px; }
 .subtitle { font-size: 14px; color: #bbb; }
 
 button {
-  padding: 10px 18px;
+  padding: 10px 16px;
   margin: 6px;
   font-size: 16px;
   cursor: pointer;
+}
+
+.bet-btn {
+  background: #222;
+  color: gold;
+  border: 1px solid #555;
+}
+.bet-btn.active {
+  background: gold;
+  color: #000;
 }
 
 .slot {
@@ -30,7 +40,40 @@ button {
   margin: 20px 0;
 }
 
-#coins { font-size: 20px; margin-top: 10px; }
+#coins {
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+#message {
+  font-size: 18px;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+#continueBtn {
+  display: none;
+}
+
+/* Mystery emojis */
+.mystery {
+  position: fixed;
+  font-size: 36px;
+  cursor: pointer;
+  animation: float 3s ease-in-out infinite;
+}
+
+.mystery small {
+  display: block;
+  font-size: 12px;
+  color: red;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-12px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.8; }
+}
 </style>
 </head>
 
@@ -44,75 +87,152 @@ button {
   <button onclick="setLang('ar')">العربية</button>
 </div>
 
+<div>
+  <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
+  <button class="bet-btn" onclick="setBet(5)">BET 5</button>
+  <button class="bet-btn" onclick="setBet(10)">BET 10</button>
+</div>
+
 <div class="slot" id="slot">🍒 🍋 🍉</div>
 
 <button onclick="spin()" id="spinBtn"></button>
+<button onclick="continueGame()" id="continueBtn"></button>
 
-<div id="coins"></div>
 <div id="message"></div>
+<div id="coins"></div>
 
 <script>
+/* ---------- TEXT ---------- */
 const TEXT = {
   en: {
     subtitle: "Entertainment only – No real money gambling",
     spin: "SPIN",
+    continue: "CONTINUE",
     coins: "Coins",
-    win: "You won 10 coins!",
-    lose: "Try again!"
+    win: "You won",
+    tryAgain: "Try again!",
+    notEnough: "Not enough coins!"
   },
   ar: {
     subtitle: "للتسلية فقط – لا يوجد قمار بأموال حقيقية",
     spin: "لف",
+    continue: "استمرار",
     coins: "العملات",
-    win: "ربحت 10 عملات!",
-    lose: "حاول مرة أخرى!"
+    win: "ربحت",
+    tryAgain: "حاول مرة أخرى!",
+    notEnough: "عملات غير كافية!"
   }
 };
 
 let lang = "en";
 let coins = 100;
+let bet = 1;
+let waiting = false;
+
 const symbols = ["🍒","🍋","🍉"];
 
 const subtitle = document.getElementById("subtitle");
 const spinBtn = document.getElementById("spinBtn");
+const continueBtn = document.getElementById("continueBtn");
 const coinsDiv = document.getElementById("coins");
 const msgDiv = document.getElementById("message");
 const slot = document.getElementById("slot");
 
+/* ---------- INIT ---------- */
+setLang("en");
+updateCoins();
+
+/* ---------- LANGUAGE ---------- */
 function setLang(l) {
   lang = l;
   document.body.className = l === "ar" ? "rtl" : "";
   subtitle.innerText = TEXT[l].subtitle;
   spinBtn.innerText = TEXT[l].spin;
+  continueBtn.innerText = TEXT[l].continue;
   updateCoins();
   msgDiv.innerText = "";
 }
 
+/* ---------- BET ---------- */
+function setBet(v) {
+  if (waiting) return;
+  bet = v;
+  document.querySelectorAll(".bet-btn").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
+/* ---------- SPIN ---------- */
 function spin() {
+  if (waiting) return;
+  if (coins < bet) {
+    msgDiv.innerText = TEXT[lang].notEnough;
+    return;
+  }
+
+  coins -= bet;
+  updateCoins();
+
   let a = symbols[rand()];
   let b = symbols[rand()];
   let c = symbols[rand()];
   slot.innerText = `${a} ${b} ${c}`;
 
   if (a === b && b === c) {
-    coins += 10;
-    msgDiv.innerText = TEXT[lang].win;
+    let win = bet * 10;
+    coins += win;
+    updateCoins();
+    msgDiv.innerText = `${TEXT[lang].win} ${win}`;
+    waiting = true;
+    continueBtn.style.display = "inline-block";
   } else {
-    msgDiv.innerText = TEXT[lang].lose;
+    msgDiv.innerText = TEXT[lang].tryAgain;
   }
-  updateCoins();
 }
 
+/* ---------- CONTINUE ---------- */
+function continueGame() {
+  waiting = false;
+  continueBtn.style.display = "none";
+  msgDiv.innerText = "";
+}
+
+/* ---------- MYSTERY EMOJIS ---------- */
+function spawnMystery() {
+  const types = [
+    { e:"🐰", v: +5, pos:true },
+    { e:"⭐", v: +10, pos:true },
+    { e:"🐯", v: -5, pos:false },
+    { e:"💀", v: -10, pos:false }
+  ];
+
+  const pick = types[rand()];
+  const m = document.createElement("div");
+  m.className = "mystery";
+  m.innerHTML = pick.e + (pick.pos ? "" : "<small>لا تلمس</small>");
+  m.style.left = Math.random() * (window.innerWidth - 40) + "px";
+  m.style.top = Math.random() * (window.innerHeight - 60) + "px";
+
+  m.onclick = () => {
+    coins += pick.v;
+    updateCoins();
+    msgDiv.innerText = (pick.v > 0 ? "+" : "") + pick.v;
+    m.remove();
+  };
+
+  document.body.appendChild(m);
+
+  setTimeout(() => m.remove(), pick.pos ? 3000 : 6000);
+}
+
+setInterval(spawnMystery, 7000);
+
+/* ---------- HELPERS ---------- */
 function updateCoins() {
   coinsDiv.innerText = TEXT[lang].coins + ": " + coins;
 }
-
 function rand() {
   return Math.floor(Math.random() * symbols.length);
 }
-
-/* init */
-setLang("en");
 </script>
 
 </body>
