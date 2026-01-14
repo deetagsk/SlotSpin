@@ -4,17 +4,24 @@
 <meta charset="UTF-8">
 <title>SlotSpin</title>
 
+<!-- AdSense verification -->
 <meta name="google-adsense-account" content="ca-pub-3954763823070860">
 
 <style>
 body{
   margin:0;
-  padding:20px;
+  padding:16px;
   background:#000;
   color:gold;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   text-align:center;
+  transition:background .5s;
 }
+body.golden{background:#3b2f00}
+.rtl{direction:rtl}
+
+h1{margin-bottom:4px}
+.subtitle{font-size:14px;color:#bbb}
 
 button{
   padding:10px 16px;
@@ -23,30 +30,33 @@ button{
   cursor:pointer;
 }
 
-.bet-btn{
-  background:#222;
-  color:gold;
-  border:1px solid #555;
-}
-.bet-btn.active{
-  background:gold;
-  color:#000;
-}
+.bet-btn{background:#222;color:gold;border:1px solid #555}
+.bet-btn.active{background:gold;color:#000}
 
-#slot{
-  font-size:60px;
-  margin:20px 0;
-}
+.slot{font-size:60px;margin:20px 0}
 
-#coins{
-  font-size:20px;
-  margin-top:10px;
-}
+#coins{font-size:20px;margin-top:10px}
+#message{font-size:18px;min-height:24px;margin-top:8px}
 
-#message{
-  font-size:18px;
-  min-height:24px;
-  margin-top:10px;
+#continueBtn{display:none}
+#goldenTimer{font-size:14px;color:gold;display:none}
+
+/* Mystery */
+.mystery{
+  position:fixed;
+  font-size:36px;
+  cursor:pointer;
+  animation:float 3s ease-in-out infinite;
+}
+.mystery small{
+  display:block;
+  font-size:12px;
+  color:red;
+}
+@keyframes float{
+  0%{transform:translateY(0);opacity:.8}
+  50%{transform:translateY(-12px);opacity:1}
+  100%{transform:translateY(0);opacity:.8}
 }
 </style>
 </head>
@@ -54,134 +64,7 @@ button{
 <body>
 
 <h1>🎰 SlotSpin</h1>
-<div id="subtitle">Entertainment only – No real money gambling</div>
+<div class="subtitle" id="subtitle"></div>
 
-<!-- BET -->
 <div>
-  <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
-  <button class="bet-btn" onclick="setBet(5)">BET 5</button>
-  <button class="bet-btn" onclick="setBet(10)">BET 10</button>
-</div>
-
-<!-- SLOT -->
-<div id="slot">🍒 🍋 🍉</div>
-
-<!-- CONTROLS -->
-<button onclick="spin()">SPIN</button>
-<button id="continueBtn" onclick="continueGame()" style="display:none">CONTINUE</button>
-
-<!-- COINS -->
-<div id="coins">Coins: 0</div>
-
-<!-- ADS & REWARDS -->
-<button onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
-<br><br>
-<button onclick="redeem()">🎁 Redeem Coins</button>
-
-<div id="message"></div>
-
-<script>
-/* ======================
-   STATE (LOCAL STORAGE)
-====================== */
-let coins = localStorage.getItem("coins")
-  ? parseInt(localStorage.getItem("coins"))
-  : 100; // start bonus
-
-let bet = 1;
-let waiting = false;
-const symbols = ["🍒","🍋","🍉"];
-
-/* ======================
-   ELEMENTS
-====================== */
-const slot = document.getElementById("slot");
-const coinsDiv = document.getElementById("coins");
-const msgDiv = document.getElementById("message");
-const continueBtn = document.getElementById("continueBtn");
-
-/* ======================
-   INIT
-====================== */
-updateCoins(0);
-
-/* ======================
-   FUNCTIONS
-====================== */
-function updateCoins(amount){
-  coins += amount;
-  if(coins < 0) coins = 0;
-  localStorage.setItem("coins", coins);
-  coinsDiv.innerText = "Coins: " + coins;
-}
-
-function setBet(v){
-  if(waiting) return;
-  bet = v;
-  document.querySelectorAll(".bet-btn")
-    .forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-}
-
-function spin(){
-  if(waiting) return;
-
-  if(coins < bet){
-    msg("Not enough coins!");
-    return;
-  }
-
-  updateCoins(-bet);
-
-  const a = symbols[rand()];
-  const b = symbols[rand()];
-  const c = symbols[rand()];
-
-  slot.innerText = `${a} ${b} ${c}`;
-
-  if(a === b && b === c){
-    const win = bet * 10;
-    updateCoins(win);
-    msg("🎉 You won " + win + " coins!");
-    waiting = true;
-    continueBtn.style.display = "inline-block";
-  } else {
-    msg("Try again!");
-  }
-}
-
-function continueGame(){
-  waiting = false;
-  continueBtn.style.display = "none";
-  msg("");
-}
-
-function watchAd(){
-  msg("🎥 Watching ad...");
-  setTimeout(()=>{
-    updateCoins(50);
-    msg("+50 coins added");
-  }, 2000);
-}
-
-function redeem(){
-  if(coins < 10000){
-    alert("You need at least 10,000 coins to redeem an Amazon Gift Card.");
-    return;
-  }
-  alert("Redemption request submitted! Gift card will be sent within 7 days.");
-}
-
-/* ======================
-   HELPERS
-====================== */
-function msg(t){
-  msgDiv.innerText = t;
-}
-function rand(){
-  return Math.floor(Math.random() * symbols.length);
-}
-</script>
-
-</body>
-</html>
+  <button onclick="
