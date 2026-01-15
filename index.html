@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SlotSpin</title>
 
 <meta name="google-adsense-account" content="ca-pub-3954763823070860">
 
 <style>
-/* =====================================================
-   Q8 CASINO THEME VARIABLES
-   ===================================================== */
+/* ======================================================
+   Q8 COLOR SYSTEM
+====================================================== */
 :root{
-  --q8-black:#0b0b0b;
-  --q8-dark:#121212;
-  --q8-panel:#1a1f2b;
+  --q8-black:#000;
+  --q8-dark:#0e0e0e;
+  --q8-panel:#141a28;
   --q8-gold:#c9a227;
   --q8-gold-soft:#ffe27a;
   --q8-red:#d62828;
   --q8-green:#2ecc71;
-  --q8-blue:#1f3cff;
-  --radius:14px;
+  --q8-gray:#888;
+  --radius:16px;
 }
 
-/* =====================================================
-   GLOBAL
-   ===================================================== */
+/* ======================================================
+   GLOBAL RESET
+====================================================== */
 *{box-sizing:border-box}
 html,body{
   margin:0;padding:0;
@@ -35,9 +35,9 @@ html,body{
 }
 .hidden{display:none}
 
-/* =====================================================
-   TOP HEADER (Q8 STYLE)
-   ===================================================== */
+/* ======================================================
+   TOP BAR (Q8 LUCK STYLE)
+====================================================== */
 .top-bar{
   display:flex;
   align-items:center;
@@ -46,23 +46,18 @@ html,body{
   background:linear-gradient(180deg,#000,#111);
   border-bottom:1px solid #222;
 }
-.top-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+.top-left{display:flex;align-items:center;gap:10px}
 .logo{
   width:34px;height:34px;
   border-radius:6px;
   background:linear-gradient(135deg,var(--q8-gold),var(--q8-gold-soft));
 }
 .game-name{
-  font-weight:700;
   font-size:18px;
+  font-weight:700;
   color:var(--q8-gold);
 }
 
-/* +200 coins button */
 .ad-reward{
   background:#111;
   border:1px solid var(--q8-red);
@@ -72,39 +67,15 @@ html,body{
   cursor:pointer;
 }
 
-/* balance */
-.balance{
-  text-align:center;
-}
-.balance .label{
-  font-size:11px;color:#aaa;
-}
-.balance .value{
-  font-size:18px;
-  font-weight:700;
-  color:var(--q8-green);
-}
+.balance{text-align:center}
+.balance .label{font-size:11px;color:#aaa}
+.balance .value{font-size:18px;font-weight:700;color:var(--q8-green)}
 
-/* level */
-.level{
-  width:110px;
-}
-.level span{
-  font-size:11px;color:#aaa;
-}
-.level-bar{
-  height:6px;
-  background:#333;
-  border-radius:6px;
-  overflow:hidden;
-}
-.level-fill{
-  height:100%;
-  width:20%;
-  background:var(--q8-red);
-}
+.level{width:110px}
+.level span{font-size:11px;color:#aaa}
+.level-bar{height:6px;background:#333;border-radius:6px;overflow:hidden}
+.level-fill{height:100%;width:20%;background:var(--q8-red)}
 
-/* change user */
 .change-user{
   background:#111;
   border:1px solid #333;
@@ -114,9 +85,9 @@ html,body{
   cursor:pointer;
 }
 
-/* =====================================================
+/* ======================================================
    MAIN GAME AREA
-   ===================================================== */
+====================================================== */
 .main{
   max-width:900px;
   margin:30px auto;
@@ -124,7 +95,6 @@ html,body{
   text-align:center;
 }
 
-/* language */
 .langs button{
   margin:4px;
   padding:6px 10px;
@@ -134,23 +104,23 @@ html,body{
   border-radius:6px;
 }
 .langs button.active{
-  border-color:var(--q8-gold);
   color:var(--q8-gold);
+  border-color:var(--q8-gold);
 }
 
-/* =====================================================
-   SLOT FRAME (Q8 STYLE)
-   ===================================================== */
+/* ======================================================
+   SLOT FRAME
+====================================================== */
 .slot-frame{
   margin:30px auto;
   padding:24px;
   border:3px solid var(--q8-gold);
-  border-radius:20px;
+  border-radius:22px;
   display:flex;
   justify-content:center;
   gap:20px;
-  box-shadow:0 0 30px rgba(201,162,39,.25);
   background:#0d1220;
+  box-shadow:0 0 30px rgba(201,162,39,.25);
 }
 .slot-box{
   width:120px;
@@ -163,49 +133,88 @@ html,body{
   font-size:56px;
 }
 
-/* =====================================================
+/* ======================================================
    CONTROLS
-   ===================================================== */
+====================================================== */
 .controls button{
-  margin:8px;
+  margin:10px;
   padding:14px 26px;
   font-size:18px;
   border-radius:28px;
   border:none;
   cursor:pointer;
 }
-#spinBtn{
-  background:linear-gradient(180deg,#d62828,#b71c1c);
-  color:#fff;
-}
-#adBtn{
-  background:#1a1a1a;
-  color:#ff6b6b;
-}
-#redeemBtn{
-  background:var(--q8-gold);
-  color:#000;
-}
+#spinBtn{background:linear-gradient(180deg,#d62828,#b71c1c);color:#fff}
+#adBtn{background:#1a1a1a;color:#ff6b6b}
+#redeemBtn{background:var(--q8-gold);color:#000}
 
-/* =====================================================
+/* ======================================================
    INFO
-   ===================================================== */
-#coins{
-  margin-top:12px;
-  font-size:18px;
+====================================================== */
+#coins{margin-top:12px;font-size:18px}
+#message{margin-top:8px;min-height:22px}
+
+/* ======================================================
+   STORE
+====================================================== */
+.store-item{
+  background:#121826;
+  border-radius:16px;
+  padding:16px;
+  margin:12px auto;
+  max-width:400px;
+  border:1px solid #222;
 }
-#message{
-  margin-top:8px;
-  min-height:22px;
+.store-item button{
+  background:#2ecc71;
+  border:none;
+  padding:8px 16px;
+  border-radius:10px;
+  cursor:pointer;
 }
 
-/* =====================================================
+/* ======================================================
+   AD OVERLAY
+====================================================== */
+.ad-overlay{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.ad-card{
+  background:linear-gradient(180deg,#121826,#0b0f1a);
+  border-radius:18px;
+  padding:30px;
+  width:90%;
+  max-width:420px;
+  text-align:center;
+}
+.ad-label{
+  background:#f1c40f;
+  color:#000;
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:11px;
+}
+.progress-bar{
+  height:6px;
+  background:#333;
+  border-radius:6px;
+  overflow:hidden;
+  margin:16px 0;
+}
+#adProgress{height:100%;width:0%;background:#d62828}
+
+/* ======================================================
    BOTTOM NAV
-   ===================================================== */
+====================================================== */
 .bottom-nav{
   position:fixed;
-  bottom:0;
-  left:0;right:0;
+  bottom:0;left:0;right:0;
   background:#000;
   border-top:1px solid #222;
   display:flex;
@@ -213,61 +222,30 @@ html,body{
   gap:80px;
   padding:10px;
 }
-.bottom-nav div{
-  color:#888;
-  font-size:12px;
-}
-.bottom-nav .active{
-  color:var(--q8-red);
-}
+.bottom-nav div{color:#888;font-size:12px}
+.bottom-nav .active{color:var(--q8-red)}
 
-/* =====================================================
-   MODALS
-   ===================================================== */
-.modal-bg{
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.7);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:100;
-}
-.modal{
-  background:#111;
-  padding:20px;
-  border-radius:12px;
-  width:320px;
-}
-.modal input{
-  width:100%;
-  margin:6px 0;
-  padding:8px;
-  border-radius:6px;
-  border:none;
-}
-
-/* =====================================================
+/* ======================================================
    DISCLAIMER
-   ===================================================== */
+====================================================== */
 .disclaimer{
-  margin-top:16px;
   font-size:11px;
   color:#777;
+  margin-top:16px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= TOP BAR ================= -->
+<!-- TOP BAR -->
 <div class="top-bar">
   <div class="top-left">
     <div class="logo"></div>
     <div class="game-name">SlotSpin</div>
   </div>
 
-  <button class="ad-reward" onclick="watchAd()">▶ +200 Coins</button>
+  <button class="ad-reward" onclick="startAdOverlay()">▶ +200 Coins</button>
 
   <div class="balance">
     <div class="label">BALANCE</div>
@@ -282,28 +260,25 @@ html,body{
   <button class="change-user" onclick="changeUser()">CHANGE USER</button>
 </div>
 
-<!-- ================= MAIN ================= -->
-<div class="main">
-
+<!-- GAME -->
+<div class="main" id="gameScreen">
   <div class="langs">
-    <button id="enBtn" class="active" onclick="setLang('en')">EN</button>
+    <button class="active" onclick="setLang('en')">EN</button>
     <button onclick="setLang('ar')">AR</button>
   </div>
 
   <p id="subtitle">Press SPIN to start your journey</p>
 
-  <!-- SLOT -->
   <div class="slot-frame">
     <div class="slot-box" id="s1">🍒</div>
     <div class="slot-box" id="s2">🍋</div>
     <div class="slot-box" id="s3">🍉</div>
   </div>
 
-  <!-- CONTROLS -->
   <div class="controls">
     <button id="spinBtn" onclick="spin()">SPIN</button>
-    <button id="adBtn" onclick="watchAd()">🎥 Watch Ad</button>
-    <button id="redeemBtn" onclick="openRedeem()">Redeem</button>
+    <button id="adBtn" onclick="startAdOverlay()">Watch Ad</button>
+    <button id="redeemBtn" onclick="showStore()">Store</button>
   </div>
 
   <div id="coins"></div>
@@ -314,25 +289,40 @@ html,body{
   </p>
 </div>
 
-<!-- ================= BOTTOM NAV ================= -->
+<!-- STORE -->
+<div class="main hidden" id="storeScreen">
+  <h2>🛒 Store</h2>
+  <div class="store-item"><h3>🎟️ Extra Spin</h3><p>50 Coins</p><button onclick="buyItem(50)">Buy</button></div>
+  <div class="store-item"><h3>🌟 Golden Theme</h3><p>500 Coins</p><button onclick="buyItem(500)">Buy</button></div>
+  <div class="store-item"><h3>👑 VIP Badge</h3><p>2000 Coins</p><button onclick="buyItem(2000)">Buy</button></div>
+</div>
+
+<!-- AD OVERLAY -->
+<div id="adOverlay" class="ad-overlay hidden">
+  <div class="ad-card">
+    <div class="ad-label">ADVERTISEMENT</div>
+    <h3>SPONSORED BRAND</h3>
+    <div class="progress-bar"><div id="adProgress"></div></div>
+    <p id="adCountdown">Reward in 15 seconds...</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="active">⭐ SLOTS</div>
-  <div>🛒 STORE</div>
+  <div class="active" onclick="showGame()">⭐ SLOTS</div>
+  <div onclick="showStore()">🛒 STORE</div>
 </div>
 
 <script>
-/* =====================================================
-   GAME LOGIC (SAFE, SIMPLE)
-   ===================================================== */
-let lang="en";
 let coins=parseInt(localStorage.getItem("coins")||"100");
 let xp=parseInt(localStorage.getItem("xp")||"0");
 const symbols=["🍒","🍋","🍉"];
 
 function updateUI(){
+  coins=Math.max(0,coins);
+  topCoins.innerText=coins;
   document.getElementById("coins").innerText="Coins: "+coins;
-  document.getElementById("topCoins").innerText=coins;
-  document.getElementById("levelFill").style.width=(xp%100)+"%";
+  levelFill.style.width=(xp%100)+"%";
   localStorage.setItem("coins",coins);
   localStorage.setItem("xp",xp);
 }
@@ -340,40 +330,49 @@ updateUI();
 
 function spin(){
   if(coins<1){msg("Not enough coins");return;}
-  coins--;
-  xp+=5;
-
+  coins--; xp+=5;
   const a=symbols[r()],b=symbols[r()],c=symbols[r()];
-  s1.innerText=a; s2.innerText=b; s3.innerText=c;
-
-  if(a===b&&b===c){
-    coins+=25;
-    msg("Winner! You got 25 coins!");
-  }else{
-    msg("Try again!");
-  }
+  s1.innerText=a;s2.innerText=b;s3.innerText=c;
+  if(a===b&&b===c){coins+=25;msg("Winner! You got 25 coins!")}
+  else msg("Try again!");
   updateUI();
 }
 
-function watchAd(){
-  coins+=200;
-  msg("+200 coins added");
-  updateUI();
+function startAdOverlay(){
+  adOverlay.classList.remove("hidden");
+  let t=15;
+  adProgress.style.width="0%";
+  const i=setInterval(()=>{
+    t--;
+    adCountdown.innerText=`Reward in ${t} seconds...`;
+    adProgress.style.width=((15-t)/15*100)+"%";
+    if(t<=0){
+      clearInterval(i);
+      adOverlay.classList.add("hidden");
+      coins+=200;
+      msg("+200 coins added");
+      updateUI();
+    }
+  },1000);
 }
 
-function openRedeem(){
-  alert("Redeem system already integrated earlier ✔");
+function showStore(){gameScreen.classList.add("hidden");storeScreen.classList.remove("hidden")}
+function showGame(){storeScreen.classList.add("hidden");gameScreen.classList.remove("hidden")}
+
+function buyItem(cost){
+  if(coins<cost){alert("Not enough coins");return;}
+  coins-=cost;updateUI();
+  alert("Purchased successfully!");
 }
 
 function changeUser(){
-  if(confirm("Reset user and progress?")){
-    localStorage.clear();
-    location.reload();
+  if(confirm("Change user and reset progress?")){
+    localStorage.clear();location.reload();
   }
 }
 
-function msg(t){document.getElementById("message").innerText=t;}
-function r(){return Math.floor(Math.random()*symbols.length);}
+function msg(t){message.innerText=t}
+function r(){return Math.floor(Math.random()*symbols.length)}
 </script>
 
 </body>
