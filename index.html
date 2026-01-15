@@ -1,290 +1,1078 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>SlotSpin</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SlotSpin — Casino</title>
 
-<!-- AdSense verification -->
+<!-- AdSense verification (kept) -->
 <meta name="google-adsense-account" content="ca-pub-3954763823070860">
 
+<!--
+  SlotSpin Enhanced Single File
+  - Based on your working commit
+  - Adds: registration, T&C acceptance, bilingual translations, redeem modal,
+          colorful buttons, animations, coin persistence, live conversion,
+          visual effects and safety guards.
+  - Keep this file as your single-page deployable site.
+-->
+
 <style>
-body{
+/* ==========================================
+   Global styles
+   ========================================== */
+
+:root{
+  --bg-dark: #000;
+  --gold: #d4af37;
+  --gold-2: #ffdd57;
+  --neon: rgba(255,215,0,0.12);
+  --accent: #c93;
+  --accent-2: #ff6;
+  --glass: rgba(255,255,255,0.03);
+  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  --radius: 12px;
+  --maxWidth: 980px;
+}
+
+/* page background — casino feel */
+html,body{
+  height:100%;
   margin:0;
-  padding:16px;
-  background:#000;
-  color:gold;
-  font-family:Arial,sans-serif;
-  text-align:center;
-  transition:background .5s;
+  padding:0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,215,0,0.04), rgba(0,0,0,0) 20%),
+    radial-gradient(circle at 80% 90%, rgba(0,128,128,0.02), rgba(0,0,0,0) 20%),
+    linear-gradient(180deg,#060606,#000);
+  color:var(--gold);
+  font-family: "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
-body.golden{background:#3b2f00}
-.rtl{direction:rtl}
 
-h1{margin-bottom:4px}
-.subtitle{font-size:14px;color:#bbb}
+/* center container */
+.container{
+  max-width:var(--maxWidth);
+  margin:24px auto;
+  padding:20px;
+  display:flex;
+  gap:20px;
+  align-items:flex-start;
+  justify-content:center;
+}
 
-button{
-  padding:10px 16px;
-  margin:6px;
-  font-size:16px;
+/* left / right decorative panels */
+.side-panel{
+  flex:1;
+  min-width:120px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:20px;
+}
+
+/* center game box */
+.game-box{
+  width:520px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:16px;
+  padding:18px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.03);
+  border: 1px solid rgba(255,215,0,0.06);
+  position:relative;
+  z-index:2;
+}
+
+/* header */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.title{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.title h1{
+  margin:0;
+  font-size:20px;
+  letter-spacing:0.6px;
+  color:var(--gold);
+}
+.subtitle{
+  margin-top:4px;
+  font-size:12px;
+  color:#cfcfcf;
+}
+
+/* language buttons */
+.langs{
+  display:flex;
+  gap:8px;
+}
+.langs button{
+  background:transparent;
+  color:#ddd;
+  border:1px solid rgba(255,255,255,0.05);
+  padding:8px 10px;
+  border-radius:8px;
   cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.langs button:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.6); }
+.langs button.active{ background:linear-gradient(90deg, rgba(255,215,0,0.08), rgba(255,215,0,0.02)); color:var(--gold); border-color:rgba(255,215,0,0.15); }
+
+/* bets row */
+.bets{
+  margin-top:14px;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
-.bet-btn{background:#222;color:gold;border:1px solid #555}
-.bet-btn.active{background:gold;color:#000}
+/* colorful buttons style (primary) */
+.btn{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:600;
+  background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,140,0,0.04));
+  border:1px solid rgba(255,215,0,0.08);
+  color:var(--gold);
+  transition:transform .12s ease, box-shadow .12s ease;
+  text-shadow:0 1px 0 rgba(0,0,0,0.8);
+}
+.btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,0.5); }
 
-.slot{font-size:60px;margin:20px 0}
+/* bet buttons special */
+.bet-btn{
+  min-width:86px;
+  text-align:center;
+}
+.bet-btn.active{
+  background: linear-gradient(90deg, #ffeb9a, #ffd965);
+  color:#1b1200;
+  border:1px solid rgba(0,0,0,0.15);
+}
 
-#coins{font-size:20px;margin-top:10px}
-#message{font-size:18px;min-height:24px;margin-top:8px}
+/* slot area */
+.slot{
+  margin:18px 0;
+  font-size:72px;
+  text-align:center;
+  padding:14px;
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  box-shadow: inset 0 -6px 18px rgba(0,0,0,0.6);
+  border:1px solid rgba(255,255,255,0.02);
+  user-select:none;
+  min-height:110px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-#continueBtn{display:none}
-#goldenTimer{font-size:14px;color:gold;display:none}
+/* control buttons row */
+.controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  margin-top:8px;
+}
 
-/* Mystery */
+#spinBtn, #continueBtn, #adBtn, #redeemBtn{
+  min-width:120px;
+}
+
+/* coin & message */
+.info{
+  margin-top:10px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+}
+.coins{
+  font-size:16px;
+  padding:8px 12px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.02);
+  border:1px solid rgba(255,215,0,0.04);
+}
+.msg{
+  font-size:15px;
+  color:#f3f3f3;
+  opacity:0.9;
+}
+
+/* golden timer */
+#goldenTimer{
+  margin-top:10px;
+  font-size:14px;
+  color:var(--gold);
+}
+
+/* mystery items and ghost */
 .mystery{
   position:fixed;
   font-size:36px;
   cursor:pointer;
   animation:float 3s ease-in-out infinite;
+  z-index:5;
+  user-select:none;
 }
 .mystery small{
   display:block;
   font-size:12px;
-  color:red;
+  color: #ffb3b3;
 }
 @keyframes float{
-  0%{transform:translateY(0);opacity:.8}
+  0%{transform:translateY(0);opacity:.85}
   50%{transform:translateY(-12px);opacity:1}
-  100%{transform:translateY(0);opacity:.8}
+  100%{transform:translateY(0);opacity:.85}
 }
+
+/* neon frame */
+.neon-frame{
+  position:absolute;
+  left:-8px; right:-8px; top:-8px; bottom:-8px;
+  pointer-events:none;
+  border-radius:16px;
+  box-shadow: 0 0 40px rgba(255,215,0,0.06), inset 0 0 30px rgba(255,215,0,0.02);
+  border: 2px solid rgba(255,215,0,0.02);
+}
+
+/* modals (registration & redeem) */
+.modal-backdrop{
+  position:fixed;
+  left:0; right:0; top:0; bottom:0;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:18px;
+}
+.modal{
+  width:100%;
+  max-width:520px;
+  background: linear-gradient(180deg, #0b0b0b, #0b0b0b);
+  border-radius:12px;
+  padding:18px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 30px 70px rgba(0,0,0,0.6);
+  color:#ddd;
+}
+.modal h3{ margin-top:0; color:var(--gold); }
+.form-row{ margin-bottom:12px; display:flex; gap:8px; flex-direction:column; }
+.input{
+  padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+  background:rgba(255,255,255,0.01); color:#fff;
+}
+.checkbox{ display:flex; gap:8px; align-items:center; }
+
+/* small screens adjustments */
+@media (max-width:900px){
+  .container{ flex-direction:column; align-items:center; padding:14px; }
+  .side-panel{ display:none; }
+  .game-box{ width:100%; }
+}
+
+/* coin pop animation (when coins awarded) */
+.coin-pop{
+  position:fixed;
+  z-index:150;
+  font-size:20px;
+  transform:translateY(0);
+  animation:popup 900ms ease forwards;
+  color:var(--gold-2);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.7);
+}
+@keyframes popup{
+  0%{ opacity:0; transform:translateY(6px) scale(.9); }
+  40%{ opacity:1; transform:translateY(-12px) scale(1.05); }
+  100%{ opacity:0; transform:translateY(-50px) scale(.9); }
+}
+
+/* slot spin animation (visual) */
+.slot.spin-anim{
+  animation:spinAnim 400ms ease-in-out;
+}
+@keyframes spinAnim{
+  0%{ transform:translateY(0) scale(1); filter:brightness(1); }
+  50%{ transform:translateY(-6px) scale(1.02); filter:brightness(1.06) blur(0.2px); }
+  100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+}
+
+/* small helper */
+.hidden{ display:none !important; }
+.center{ text-align:center; }
+.small{ font-size:12px; color:#bfbfbf; }
 </style>
 </head>
 
 <body>
+<!-- ======================================================
+     Page shell: side panels + central game box
+     Important: do not change outer structure — internal scripts
+     will target element IDs/classes used below.
+     ====================================================== -->
+<div class="container" id="mainContainer">
 
-<h1>🎰 SlotSpin</h1>
-<div class="subtitle" id="subtitle"></div>
+  <!-- left decorative panel (casino chips, info) -->
+  <div class="side-panel" id="leftPanel">
+    <!-- decorative chips -->
+    <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffef9a, #ffaf00);box-shadow:0 6px 20px rgba(0,0,0,0.6);"></div>
+      <div style="color:#ddd;font-size:12px;margin-top:6px;">Live Players</div>
+      <div id="livePlayers" style="font-weight:700;font-size:18px;color:var(--gold);">1</div>
+    </div>
+  </div>
 
-<div>
-  <button onclick="setLang('en')">English</button>
-  <button onclick="setLang('ar')">العربية</button>
+  <!-- center game box -->
+  <div class="game-box" role="main" aria-labelledby="gameTitle">
+    <div class="neon-frame"></div>
+
+    <!-- header -->
+    <div class="header">
+      <div class="title">
+        <h1 id="gameTitle">🎰 SlotSpin</h1>
+        <div style="font-size:12px;color:#ccc;margin-left:6px;" id="versionLabel">v1.0</div>
+      </div>
+
+      <div class="langs" role="tablist" aria-label="Languages">
+        <button id="btnLangEn" class="active" onclick="setLang('en')">EN</button>
+        <button id="btnLangAr" onclick="setLang('ar')">AR</button>
+      </div>
+    </div>
+
+    <div class="subtitle" id="subtitle">Entertainment only – No real money gambling</div>
+
+    <!-- bets -->
+    <div class="bets" aria-hidden="false">
+      <button class="btn bet-btn active" onclick="setBet(1)">BET 1</button>
+      <button class="btn bet-btn" onclick="setBet(5)">BET 5</button>
+      <button class="btn bet-btn" onclick="setBet(10)">BET 10</button>
+    </div>
+
+    <!-- slot area -->
+    <div class="slot" id="slot">🍒 🍋 🍉</div>
+
+    <!-- controls -->
+    <div class="controls">
+      <button id="spinBtn" class="btn" onclick="spin()">SPIN</button>
+      <button id="continueBtn" class="btn" onclick="continueGame()" style="display:none">CONTINUE</button>
+      <button id="adBtn" class="btn" onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
+      <button id="redeemBtn" class="btn" onclick="openRedeemModal()">🎁 Redeem Coins</button>
+    </div>
+
+    <!-- info row -->
+    <div class="info">
+      <div id="coins" class="coins">Coins: 0</div>
+      <div id="message" class="msg">Good luck!</div>
+    </div>
+
+    <div id="goldenTimer" class="small"></div>
+
+    <!-- quick help -->
+    <div style="margin-top:12px" class="small center">
+      <span id="helpText">Spin to match 3 fruits. Win multipliers during Golden Minute.</span>
+    </div>
+
+  </div>
+
+  <!-- right decorative panel -->
+  <div class="side-panel" id="rightPanel" style="align-items:flex-end">
+    <div style="width:100%; display:flex; flex-direction:column; gap:10px; align-items:center;">
+      <div class="small">Recent Winners</div>
+      <div id="recentWinners" class="small" style="color:#ddd; text-align:center; min-height:60px;">
+        <!-- Filled dynamically -->
+      </div>
+      <div style="margin-top:12px" class="small">Promotions</div>
+      <div style="width:100%;height:60px;border-radius:8px;background:linear-gradient(90deg,#141414,#1a1a1a);border:1px solid rgba(255,255,255,0.02);"></div>
+    </div>
+  </div>
 </div>
 
-<div>
-  <button class="bet-btn active" onclick="setBet(1)">BET 1</button>
-  <button class="bet-btn" onclick="setBet(5)">BET 5</button>
-  <button class="bet-btn" onclick="setBet(10)">BET 10</button>
+<!-- ======================================================
+   Registration modal (shows on first load if not registered)
+   ====================================================== -->
+<div id="registerModal" class="modal-backdrop" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="regTitle">
+    <h3 id="regTitle">Welcome to SlotSpin</h3>
+    <p class="small" id="regSub">Please provide a few details and accept our Terms &amp; Conditions to continue.</p>
+
+    <div class="form-row">
+      <label class="small">Name</label>
+      <input id="regName" class="input" placeholder="Your name" />
+    </div>
+
+    <div class="form-row">
+      <label class="small">Phone</label>
+      <input id="regPhone" class="input" placeholder="+965 5xxxxxxx" />
+    </div>
+
+    <div class="form-row">
+      <label class="small">Age</label>
+      <input id="regAge" class="input" placeholder="Your age" type="number" min="10" max="120" />
+    </div>
+
+    <div class="form-row checkbox">
+      <input id="acceptTnc" type="checkbox" />
+      <div>
+        <div class="small" id="tncTitle">I accept the Terms &amp; Conditions</div>
+        <div class="small" id="tncText">This is not GAMBLING; it does not include real money transactions.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn" onclick="cancelRegistration()">Cancel</button>
+      <button id="regSubmit" class="btn" onclick="submitRegistration()">Continue</button>
+    </div>
+  </div>
 </div>
 
-<div class="slot" id="slot">🍒 🍋 🍉</div>
+<!-- ======================================================
+   Redeem modal (popup window inside page)
+   ====================================================== -->
+<div id="redeemModal" class="modal-backdrop" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="redeemTitle">
+    <h3 id="redeemTitle">Redeem Coins</h3>
 
-<button id="spinBtn" onclick="spin()">SPIN</button>
-<button id="continueBtn" onclick="continueGame()">CONTINUE</button>
+    <div class="small" id="redeemBalance">You have 0 coins</div>
 
-<div>
-  <button id="adBtn" onclick="watchAd()">🎥 Watch Ad → Get Coins</button>
+    <div class="form-row">
+      <label class="small" id="redeemNameLabel">Name</label>
+      <input id="redeemName" class="input" placeholder="Your name" />
+    </div>
+
+    <div class="form-row">
+      <label class="small" id="redeemEmailLabel">Email</label>
+      <input id="redeemEmail" class="input" placeholder="you@example.com" />
+    </div>
+
+    <div class="form-row">
+      <label class="small" id="redeemVoucherLabel">How many vouchers?</label>
+      <input id="redeemVouchers" class="input" placeholder="1" type="number" min="1" value="1" />
+      <div class="small" id="voucherHint">1 voucher = 10,000 points</div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn" onclick="closeRedeemModal()">Close</button>
+      <button class="btn" onclick="submitRedeem()">Submit Request</button>
+    </div>
+
+  </div>
 </div>
 
-<div style="margin-top:6px">
-  <button id="redeemBtn" onclick="redeem()">🎁 Redeem Coins</button>
-
-</div>
-
-<div id="goldenTimer"></div>
-<div id="message"></div>
-<div id="coins"></div>
-
+<!-- ======================================================
+   Everything below is the JavaScript. Stayed close to your original
+   working code and extended it safely. Do not delete IDs or classNames
+   used above; JS relies on them.
+   ====================================================== -->
 <script>
-/* TEXT */
-const TEXT={
- en:{
-  subtitle:"Entertainment only – No real money gambling",
-  spin:"SPIN",
-  cont:"CONTINUE",
-  coins:"Coins",
-  win:"You won",
-  tryAgain:"Try again!",
-  notEnough:"Not enough coins!",
-  ad:"🎥 Watch Ad → Get Coins",
-  golden:"🌟 Golden Minute"
- },
- ar:{
-  subtitle:"للتسلية فقط – لا يوجد قمار بأموال حقيقية",
-  spin:"لف",
-  cont:"استمرار",
-  coins:"العملات",
-  win:"ربحت",
-  tryAgain:"حاول مرة أخرى!",
-  notEnough:"عملات غير كافية!",
-  ad:"🎥 شاهد الإعلان → احصل على عملات",
-  golden:"🌟 الدقيقة الذهبية"
- }
+/* =====================================================================
+   Translation / TEXT: contains every UI string used in the page.
+   Update here to change wording in both languages.
+   ===================================================================== */
+const TEXT = {
+  en: {
+    subtitle: "Entertainment only – No real money gambling",
+    spin: "SPIN",
+    cont: "CONTINUE",
+    coins: "Coins",
+    win: "You won",
+    tryAgain: "Try again!",
+    notEnough: "Not enough coins!",
+    ad: "🎥 Watch Ad → Get Coins",
+    golden: "🌟 Golden Minute",
+    redeem: "🎁 Redeem Coins",
+    acceptTerms: "I accept the Terms & Conditions",
+    tncText: "This is not GAMBLING; it does not include real money transactions.",
+    regTitle: "Welcome to SlotSpin",
+    regSub: "Please register to play and accept the Terms & Conditions.",
+    ghostSmall: "Catch me, if you can",
+    mysterySmall: "Don't catch me",
+    betLabel: "BET",
+    recentWinners: "Recent Winners",
+    livePlayers: "Live Players",
+    redeemModalTitle: "Redeem Coins",
+    voucherHint: "1 voucher = 10,000 points",
+    redeemRequestSent: "Redemption request submitted. We'll email the voucher within 7 days.",
+    registrationRequired: "Please complete registration and accept Terms to play.",
+    registrationThanks: "Thanks — registration saved!"
+  },
+
+  ar: {
+    subtitle: "للتسلية فقط – لا يوجد قمار بأموال حقيقية",
+    spin: "لف",
+    cont: "استمرار",
+    coins: "العملات",
+    win: "ربحت",
+    tryAgain: "حاول مرة أخرى!",
+    notEnough: "عملات غير كافية!",
+    ad: "🎥 شاهد الإعلان → احصل على عملات",
+    golden: "🌟 الدقيقة الذهبية",
+    redeem: "🎁 استبدال العملات",
+    acceptTerms: "أوافق على الشروط والأحكام",
+    tncText: "هذا ليس مقامرة؛ ولا يتضمن معاملات نقدية حقيقية.",
+    regTitle: "مرحبًا بك في SlotSpin",
+    regSub: "يرجى التسجيل للعب والموافقة على الشروط والأحكام.",
+    ghostSmall: "إمسكني إن استطعت",
+    mysterySmall: "لا تلمس",
+    betLabel: "رهان",
+    recentWinners: "الفائزون الجدد",
+    livePlayers: "لاعبون متصلون",
+    redeemModalTitle: "استبدال العملات",
+    voucherHint: "1 قسيمة = 10,000 نقطة",
+    redeemRequestSent: "تم إرسال طلب الاستبدال. سنرسل القسيمة عبر البريد الإلكتروني خلال 7 أيام.",
+    registrationRequired: "الرجاء إكمال التسجيل والموافقة على الشروط للعب.",
+    registrationThanks: "شكرًا — تم حفظ التسجيل!"
+  }
 };
 
-/* STATE (WITH LOCAL STORAGE) */
-let coins = localStorage.getItem("coins")
-  ? parseInt(localStorage.getItem("coins"))
-  : 100;
+/* =====================================================================
+   State variables (we persist coins and registration to localStorage)
+   We keep other game logic variables as in your working code.
+   ===================================================================== */
+let lang = "en";
+let coins = localStorage.getItem("coins") ? parseInt(localStorage.getItem("coins")) : 100;
+let bet = 1;
+let waiting = false;
+let spins = 0;
+let golden = false;
+let goldenTime = 0;
+let goldenInt = null;
+const symbols = ["🍒","🍋","🍉"]; // keep original symbols
 
-let lang="en",bet=1,waiting=false;
-let spins=0,golden=false,goldenTime=0,goldenInt;
-const symbols=["🍒","🍋","🍉"];
+/* Elements cached */
+const subtitle = document.getElementById("subtitle");
+const spinBtn = document.getElementById("spinBtn");
+const continueBtn = document.getElementById("continueBtn");
+const coinsDiv = document.getElementById("coins");
+const msgDiv = document.getElementById("message");
+const adBtn = document.getElementById("adBtn");
+const goldenTimer = document.getElementById("goldenTimer");
+const slot = document.getElementById("slot");
+const redeemBtn = document.getElementById("redeemBtn");
+const btnLangEn = document.getElementById("btnLangEn");
+const btnLangAr = document.getElementById("btnLangAr");
+const recentWinnersDiv = document.getElementById("recentWinners");
+const livePlayers = document.getElementById("livePlayers");
 
-/* ELEMENTS */
-const subtitle=document.getElementById("subtitle");
-const spinBtn=document.getElementById("spinBtn");
-const continueBtn=document.getElementById("continueBtn");
-const coinsDiv=document.getElementById("coins");
-const msgDiv=document.getElementById("message");
-const adBtn=document.getElementById("adBtn");
-const goldenTimer=document.getElementById("goldenTimer");
-const slot=document.getElementById("slot");
+/* registration elements */
+const registerModal = document.getElementById("registerModal");
+const regName = document.getElementById("regName");
+const regPhone = document.getElementById("regPhone");
+const regAge = document.getElementById("regAge");
+const acceptTnc = document.getElementById("acceptTnc");
+const regSubmit = document.getElementById("regSubmit");
 
-/* INIT */
-setLang("en");
-updateCoins();
+/* redeem modal elements */
+const redeemModal = document.getElementById("redeemModal");
+const redeemBalance = document.getElementById("redeemBalance");
+const redeemName = document.getElementById("redeemName");
+const redeemEmail = document.getElementById("redeemEmail");
+const redeemVouchers = document.getElementById("redeemVouchers");
+const voucherHint = document.getElementById("voucherHint");
 
-/* LANGUAGE */
+/* =========================================================
+   Helper: safe innerText setter
+   ========================================================= */
+function safeSetText(el, txt){
+  if(!el) return;
+  el.innerText = txt;
+}
+
+/* =========================================================
+   Initialize UI with current language and coin value
+   ========================================================= */
+function initUI(){
+  setLang(lang);
+  updateCoinsUI();
+  updateRecentWinnersUI();
+  updateLivePlayers();
+  checkRegistrationOnLoad();
+}
+
+/* =========================================================
+   Language toggle
+   ========================================================= */
 function setLang(l){
- lang=l;
- document.body.className=l==="ar"?"rtl":"";
- subtitle.innerText=TEXT[l].subtitle;
- spinBtn.innerText=TEXT[l].spin;
- continueBtn.innerText=TEXT[l].cont;
- adBtn.innerText=TEXT[l].ad;
-
-  document.getElementById("redeemBtn").innerText = TEXT[l].redeem;
- updateCoins();
- msg("");
-}
-
-/* BET */
-function setBet(v){
- if(waiting)return;
- bet=v;
- document.querySelectorAll(".bet-btn").forEach(b=>b.classList.remove("active"));
- event.target.classList.add("active");
-}
-
-/* SPIN */
-function spin(){
- if(waiting)return;
- if(coins<bet){msg(TEXT[lang].notEnough);return;}
-
- coins-=bet;spins++;
- updateCoins();
-
- if(!golden && spins%25===0) startGolden();
-
- let a=symbols[r()],b=symbols[r()],c=symbols[r()];
- slot.innerText=`${a} ${b} ${c}`;
-
- if(a===b&&b===c){
-  let win=bet*10*(golden?2:1);
-  coins+=win;
-  updateCoins();
-  msg(`${TEXT[lang].win} ${win}`);
-  waiting=true;
-  continueBtn.style.display="inline-block";
- } else msg(TEXT[lang].tryAgain);
-}
-
-/* CONTINUE */
-function continueGame(){
- waiting=false;
- continueBtn.style.display="none";
- msg("");
-}
-
-/* WATCH AD */
-function watchAd(){
- msg("🎥 ...");
- setTimeout(()=>{
-  let reward=golden?100:50;
-  coins+=reward;
-  updateCoins();
-  msg("+"+reward);
- },2000);
-}
-
-/* REDEEM */
-function redeem(){
- if(coins < 10000){
-  alert("You need at least 10,000 coins to redeem an Amazon Gift Card.");
-  return;
- }
- alert("Redemption request submitted.\nGift card will be sent within 7 days.");
-}
-
-/* GOLDEN MINUTE */
-function startGolden(){
- golden=true;goldenTime=60;
- document.body.classList.add("golden");
- goldenTimer.style.display="block";
- goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
- goldenInt=setInterval(()=>{
-  goldenTime--;
-  goldenTimer.innerText=TEXT[lang].golden+" : "+goldenTime+"s";
-  if(goldenTime<=0){
-    clearInterval(goldenInt);
-    golden=false;
-    document.body.classList.remove("golden");
-    goldenTimer.style.display="none";
-    msg("⏳");
+  lang = l;
+  // switch language button styles
+  if(l === "ar"){
+    btnLangAr.classList.add("active"); btnLangEn.classList.remove("active");
+    document.documentElement.setAttribute("dir", "rtl");
+    document.body.classList.add("rtl");
+  } else {
+    btnLangEn.classList.add("active"); btnLangAr.classList.remove("active");
+    document.documentElement.setAttribute("dir", "ltr");
+    document.body.classList.remove("rtl");
   }
- },1000);
+
+  // update all visible texts (use TEXT)
+  safeSetText(subtitle, TEXT[l].subtitle);
+  safeSetText(spinBtn, TEXT[l].spin);
+  safeSetText(continueBtn, TEXT[l].cont);
+  safeSetText(adBtn, TEXT[l].ad);
+  safeSetText(redeemBtn, TEXT[l].redeem);
+  safeSetText(document.getElementById("helpText"), (l === "ar") ? "اقلب لمطابقة 3 فواكه. اربح مضاعفات خلال الدقيقة الذهبية." : "Spin to match 3 fruits. Win multipliers during Golden Minute.");
+  safeSetText(document.getElementById("versionLabel"), "v1.0");
+  safeSetText(document.getElementById("livePlayers"), (TEXT[l].livePlayers || "Live Players"));
+
+  // update small modal texts if visible
+  document.getElementById("regTitle").innerText = TEXT[l].regTitle;
+  document.getElementById("regSub").innerText = TEXT[l].regSub;
+  document.getElementById("tncText").innerText = TEXT[l].tncText;
+  document.getElementById("tncTitle").innerText = TEXT[l].acceptTerms;
+
+  document.getElementById("redeemTitle").innerText = TEXT[l].redeemModalTitle;
+  voucherHint.innerText = TEXT[l].voucherHint;
+  safeSetText(document.getElementById("redeemBalance"), TEXT[l].coins + ": " + coins);
+
+  // update BET button labels (we use the Arabic 'رهان' label)
+  document.querySelectorAll(".bet-btn").forEach((b, idx) => {
+    const value = (idx === 0) ? 1 : (idx === 1) ? 5 : 10;
+    if(l === "ar"){
+      b.innerText = (TEXT[l].betLabel || "رهان") + " " + value;
+    } else {
+      b.innerText = "BET " + value;
+    }
+  });
+
+  // update other small texts in page (recent winners header)
+  safeSetText(recentWinnersDiv.previousElementSibling, TEXT[l].recentWinners || "Recent Winners");
 }
 
-/* MYSTERY */
+/* =========================================================
+   Registration: show modal on first visit unless data present
+   ========================================================= */
+function checkRegistrationOnLoad(){
+  const stored = localStorage.getItem("playerInfo");
+  if(stored){
+    // load player info silently
+    const info = JSON.parse(stored);
+    // if T&C accepted, hide modal
+    if(info && info.acceptedTerms){
+      // fine, user registered
+      msg(TEXT[lang].registrationThanks);
+      return;
+    }
+  }
+  // show modal (force registration)
+  openRegisterModal();
+}
+
+function openRegisterModal(){
+  // prefill if available
+  const stored = localStorage.getItem("playerInfo");
+  if(stored){
+    try{
+      const info = JSON.parse(stored);
+      regName.value = info.name || "";
+      regPhone.value = info.phone || "";
+      regAge.value = info.age || "";
+      acceptTnc.checked = info.acceptedTerms || false;
+    }catch(e){}
+  }
+  // show
+  registerModal.style.display = "flex";
+}
+
+function cancelRegistration(){
+  // keep modal open but allow cancel => but we must prevent playing
+  // user may cancel — we will keep showing modal until they register properly
+  // for now, just keep modal visible; user can close tab
+  alert(TEXT[lang].registrationRequired);
+}
+
+function submitRegistration(){
+  const name = regName.value && regName.value.trim();
+  const phone = regPhone.value && regPhone.value.trim();
+  const age = parseInt(regAge.value) || null;
+  const accepted = acceptTnc.checked;
+
+  if(!name || !phone || !age){
+    alert("Please enter name, phone and age.");
+    return;
+  }
+  if(!accepted){
+    alert("Please accept the Terms & Conditions to continue.");
+    return;
+  }
+
+  const info = { name, phone, age, acceptedTerms: accepted, created: Date.now() };
+  localStorage.setItem("playerInfo", JSON.stringify(info));
+  registerModal.style.display = "none";
+  msg(TEXT[lang].registrationThanks);
+}
+
+/* =========================================================
+   Coins: persistence + UI update
+   ========================================================= */
+function updateCoinsUI(){
+  // ensure no negative
+  if(coins < 0) coins = 0;
+  localStorage.setItem("coins", coins);
+  safeSetText(coinsDiv, TEXT[lang].coins + ": " + coins);
+  // update redeem modal balance if open
+  if(redeemModal.style.display === "flex"){
+    safeSetText(redeemBalance, TEXT[lang].coins + ": " + coins);
+  }
+}
+
+/* =========================================================
+   Spin functionality (kept as your working logic)
+   ========================================================= */
+function setBet(v){
+  if(waiting) return;
+  bet = v;
+  document.querySelectorAll(".bet-btn").forEach(b => b.classList.remove("active"));
+  // event may be undefined in some contexts; set active by scanning
+  const btns = document.querySelectorAll(".bet-btn");
+  btns.forEach(b => {
+    if(b.innerText.includes(v.toString())) b.classList.add("active");
+  });
+}
+
+function spin(){
+  // ensure registered and terms accepted
+  const player = localStorage.getItem("playerInfo");
+  if(!player){
+    alert(TEXT[lang].registrationRequired);
+    openRegisterModal();
+    return;
+  }
+  // basic guard
+  if(waiting) return;
+  if(coins < bet){ msg(TEXT[lang].notEnough); return; }
+
+  // spend bet
+  coins -= bet; spins++;
+  updateCoinsUI();
+
+  // visual spin: add animation class and remove shortly after
+  slot.classList.add("spin-anim");
+  setTimeout(()=> slot.classList.remove("spin-anim"), 420);
+
+  // golden minute check
+  if(!golden && spins % 25 === 0) startGolden();
+
+  // pick symbols
+  let a = symbols[r()], b = symbols[r()], c = symbols[r()];
+  slot.innerText = `${a} ${b} ${c}`;
+
+  // win logic
+  if(a === b && b === c){
+    let win = bet * 10 * (golden ? 2 : 1);
+    coins += win;
+    updateCoinsUI();
+    msg(`${TEXT[lang].win} ${win}`);
+    waiting = true;
+    continueBtn.style.display = "inline-block";
+    // show coin pop animation near center
+    createCoinPop(`+${win}`);
+    addRecentWinner(`${maskName(getPlayerName())} +${win}`);
+  } else {
+    msg(TEXT[lang].tryAgain);
+  }
+}
+
+/* continue */
+function continueGame(){
+  waiting = false;
+  continueBtn.style.display = "none";
+  msg("");
+}
+
+/* =========================================================
+   Watch Ad => reward
+   ========================================================= */
+function watchAd(){
+  // simulate watching rewarded ad (AdMob integration later)
+  msg("🎥 ...");
+  setTimeout(()=>{
+    let reward = golden ? 100 : 50;
+    coins += reward;
+    updateCoinsUI();
+    msg("+" + reward);
+    createCoinPop("+" + reward);
+  }, 1600);
+}
+
+/* =========================================================
+   Golden minute
+   ========================================================= */
+function startGolden(){
+  golden = true;
+  goldenTime = 60;
+  document.body.classList.add("golden");
+  goldenTimer.style.display = "block";
+  goldenTimer.innerText = TEXT[lang].golden + " : " + goldenTime + "s";
+  goldenInt = setInterval(()=>{
+    goldenTime--;
+    goldenTimer.innerText = TEXT[lang].golden + " : " + goldenTime + "s";
+    if(goldenTime <= 0){
+      clearInterval(goldenInt);
+      golden = false;
+      document.body.classList.remove("golden");
+      goldenTimer.style.display = "none";
+      msg("⏳");
+    }
+  }, 1000);
+}
+
+/* =========================================================
+   Mystery & Ghost (kept original behavior) with translated small texts
+   ========================================================= */
 function spawnMystery(){
- const types=[
-  {e:"🐰",v:golden?10:5,pos:true,d:3000},
-  {e:"⭐",v:golden?20:10,pos:true,d:3000},
-  {e:"😈",v:-15,pos:false,d:6000,text:"Don't catch me"},
-  {e:"🐯",v:-5,pos:false,d:6000}
- ];
- const p=types[r()];
- const m=document.createElement("div");
- m.className="mystery";
- m.innerHTML=p.e+(p.pos?"":`<small>${p.text||"لا تلمس"}</small>`);
- place(m);
- m.onclick=()=>{coins+=p.v;updateCoins();msg(p.v);m.remove();};
- document.body.appendChild(m);
- setTimeout(()=>m.remove(),p.d);
+  const types = [
+    { e: "🐰", v: golden ? 10 : 5, pos: true, d: 3000, textEn: "Bunny", textAr: "أرنب" },
+    { e: "⭐", v: golden ? 20 : 10, pos: true, d: 3000, textEn: "Star", textAr: "نجمة" },
+    { e: "😈", v: -15, pos: false, d: 6000, text: TEXT[lang].mysterySmall || TEXT[lang].mysterySmall, textEn: "Don't catch me", textAr: "لا تلمس" },
+    { e: "🐯", v: -5, pos: false, d: 6000, textEn: "Tiger", textAr: "نمر" }
+  ];
+  const p = types[r()];
+  const m = document.createElement("div");
+  m.className = "mystery";
+  // choose small text based on language
+  const smallText = (lang === "ar") ? (p.textAr || "") : (p.textEn || "");
+  m.innerHTML = p.e + (p.pos ? "" : `<small>${smallText}</small>`);
+  place(m);
+  m.onclick = () => {
+    coins += p.v;
+    updateCoinsUI();
+    msg((p.v >= 0 ? "+" : "") + p.v);
+    createCoinPop((p.v >= 0 ? "+" : "") + p.v);
+    m.remove();
+  };
+  document.body.appendChild(m);
+  setTimeout(()=> m.remove(), p.d);
 }
 
-/* GHOST */
 function spawnGhost(){
- let moves=0;
- const g=document.createElement("div");
- g.className="mystery";
- g.innerHTML="👻<small>Catch me, if you can</small>";
- function move(){
-  place(g); moves++;
-  if(moves>=2)setTimeout(()=>g.remove(),1000);
- }
- g.onclick=()=>{coins+=30;updateCoins();msg("+30");g.remove();};
- document.body.appendChild(g);
- move(); setTimeout(move,1000);
+  let moves = 0;
+  const g = document.createElement("div");
+  g.className = "mystery";
+  // ghost small text based on language
+  const smallGhost = (lang === "ar") ? TEXT[lang].ghostSmall : TEXT[lang].ghostSmall;
+  g.innerHTML = "👻<small>" + smallGhost + "</small>";
+  function move(){
+    place(g); moves++;
+    if(moves >= 2) setTimeout(()=> g.remove(), 1000);
+  }
+  g.onclick = () => {
+    coins += 30;
+    updateCoinsUI();
+    msg("+30");
+    createCoinPop("+30");
+    g.remove();
+  };
+  document.body.appendChild(g);
+  move();
+  setTimeout(move, 1000);
 }
 
-/* HELPERS */
+/* =========================================================
+   Helpers
+   ========================================================= */
 function place(el){
- el.style.left=Math.random()*(innerWidth-60)+"px";
- el.style.top=Math.random()*(innerHeight-80)+"px";
+  el.style.left = Math.floor(Math.random() * (window.innerWidth - 80)) + "px";
+  el.style.top = Math.floor(Math.random() * (window.innerHeight - 140)) + "px";
 }
-function updateCoins(){
- if(coins < 0) coins = 0;
- localStorage.setItem("coins", coins);
- coinsDiv.innerText=TEXT[lang].coins+": "+coins;
+function createCoinPop(text){
+  const p = document.createElement("div");
+  p.className = "coin-pop";
+  p.style.left = (window.innerWidth/2 - 20 + (Math.random()*80-40)) + "px";
+  p.style.top = (window.innerHeight/2 - 40 + (Math.random()*60-30)) + "px";
+  p.innerText = text;
+  document.body.appendChild(p);
+  setTimeout(()=> p.remove(), 900);
 }
-function msg(t){msgDiv.innerText=t;}
-function r(){return Math.floor(Math.random()*symbols.length);}
+function msg(t){ msgDiv.innerText = t; }
+function r(){ return Math.floor(Math.random() * symbols.length); }
 
-/* INTERVALS */
-setInterval(spawnMystery,7000);
-setInterval(spawnGhost,25000);
+/* =========================================================
+   Recent winners (simple display) and helper to mask name
+   ========================================================= */
+function addRecentWinner(text){
+  const now = new Date();
+  const short = `${text} — ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const node = document.createElement("div");
+  node.innerText = short;
+  node.style.padding = "6px 8px";
+  node.style.borderRadius = "8px";
+  node.style.background = "linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00))";
+  node.style.marginTop = "6px";
+  recentWinnersDiv.prepend(node);
+  // limit to 6
+  while(recentWinnersDiv.children.length > 6) recentWinnersDiv.removeChild(recentWinnersDiv.lastChild);
+}
+
+function maskName(name){
+  if(!name) return "A***";
+  return name.charAt(0) + "***";
+}
+function getPlayerName(){
+  const stored = localStorage.getItem("playerInfo");
+  if(!stored) return "";
+  try{ return JSON.parse(stored).name || ""; }catch(e){ return ""; }
+}
+
+/* =========================================================
+   Redeem modal: open/close and submit logic + live conversion
+   10000 points = 1 voucher (live translation)
+   ========================================================= */
+const POINTS_PER_VOUCHER = 10000;
+
+function openRedeemModal(){
+  // show redeem modal only when registered & T&C accepted
+  const stored = localStorage.getItem("playerInfo");
+  if(!stored){
+    alert(TEXT[lang].registrationRequired);
+    openRegisterModal();
+    return;
+  }
+  // prefill name
+  redeemName.value = getPlayerName() || "";
+  redeemEmail.value = "";
+  redeemVouchers.value = 1;
+  voucherHint.innerText = TEXT[lang].voucherHint;
+  safeSetText(redeemBalance, TEXT[lang].coins + ": " + coins);
+  // set labels (language)
+  document.getElementById("redeemNameLabel").innerText = (lang === "ar") ? "الاسم" : "Name";
+  document.getElementById("redeemEmailLabel").innerText = (lang === "ar") ? "البريد الإلكتروني" : "Email";
+  document.getElementById("redeemVoucherLabel").innerText = (lang === "ar") ? "كم عدد القسائم؟" : "How many vouchers?";
+  redeemModal.style.display = "flex";
+  updateRedeemLive();
+}
+
+function closeRedeemModal(){
+  redeemModal.style.display = "none";
+}
+
+function updateRedeemLive(){
+  // update hint: show required points for current number
+  const requested = Math.max(1, parseInt(redeemVouchers.value) || 1);
+  const requiredPoints = requested * POINTS_PER_VOUCHER;
+  const canAfford = coins >= requiredPoints;
+  voucherHint.innerText = (lang === "ar")
+    ? `${requested} قسيمة = ${requiredPoints} نقطة. لديك ${coins} نقطة.`
+    : `${requested} voucher(s) = ${requiredPoints} points. You have ${coins} points.`;
+  // style hint color if not afford
+  voucherHint.style.color = canAfford ? "#b8ffb5" : "#ff9a9a";
+}
+
+/* attach live input listener */
+redeemVouchers && redeemVouchers.addEventListener('input', updateRedeemLive);
+
+/* submission */
+function submitRedeem(){
+  const name = redeemName.value && redeemName.value.trim();
+  const email = redeemEmail.value && redeemEmail.value.trim();
+  const vouchers = Math.max(1, parseInt(redeemVouchers.value) || 1);
+  const required = vouchers * POINTS_PER_VOUCHER;
+
+  if(!name || !email){
+    alert((lang === "ar") ? "الرجاء إدخال الاسم والبريد الإلكتروني." : "Please enter name and email.");
+    return;
+  }
+  if(coins < required){
+    alert((lang === "ar") ? "لا تملك نقاطًا كافية." : "You don't have enough points.");
+    return;
+  }
+
+  // deduct points and persist
+  coins -= required;
+  updateCoinsUI();
+
+  // create a simple local "request" record (in real system send to backend)
+  const requests = JSON.parse(localStorage.getItem("redeemRequests") || "[]");
+  const req = {
+    id: 'REQ' + Date.now(),
+    name, email, vouchers, requiredPoints: required,
+    created: new Date().toISOString(),
+    status: "pending"
+  };
+  requests.unshift(req);
+  localStorage.setItem("redeemRequests", JSON.stringify(requests));
+
+  closeRedeemModal();
+
+  // notify user
+  alert(TEXT[lang].redeemRequestSent);
+  addRecentWinner(`${maskName(name)} requested ${vouchers} voucher(s)`); // show in recent winners for trust
+}
+
+/* =========================================================
+   Utility: update recent winners & live players periodically
+   ========================================================= */
+function updateRecentWinnersUI(){
+  // if no recent winners data, seed a few fun messages
+  if(!recentWinnersDiv.children.length){
+    const seed = [
+      (lang === "ar") ? "مستخدم جديد +50" : "NewUser +50",
+      (lang === "ar") ? "علي +100" : "Ali +100",
+      (lang === "ar") ? "أحمد +30" : "Ahmed +30"
+    ];
+    seed.forEach(s => {
+      const d = document.createElement("div");
+      d.innerText = s;
+      d.style.opacity = 0.85;
+      recentWinnersDiv.appendChild(d);
+    });
+  }
+}
+
+/* simulate live players */
+function updateLivePlayers(){
+  const val = Math.max(1, Math.floor(Math.random()*8 + 1));
+  livePlayers.innerText = val;
+}
+
+/* run periodic updater */
+setInterval(updateLivePlayers, 7000);
+
+/* spawn mystery & ghost at intervals (kept existing values) */
+setInterval(spawnMystery, 7000);
+setInterval(spawnGhost, 25000);
+
+/* =========================================================
+   Small protective guards to avoid the 'undefined' redeem bug:
+   - Ensure TEXT has redeem for both languages (done)
+   - Ensure redeemBtn exists and is updated in setLang
+   ========================================================= */
+if(!TEXT.en.redeem) TEXT.en.redeem = "🎁 Redeem Coins";
+if(!TEXT.ar.redeem) TEXT.ar.redeem = "🎁 استبدال العملات";
+
+/* Ensure redeemBtn text has sensible fallback right away */
+if(redeemBtn) redeemBtn.innerText = TEXT[lang].redeem || "🎁 Redeem Coins";
+
+/* update coins UI right away */
+updateCoinsUI();
+
+/* Initial UI setup */
+initUI();
+
+/* Expose some functions to console for debugging (optional) */
+window.slotSpin = { spin, watchAd, openRedeemModal, closeRedeemModal, submitRedeem };
+window.SlotSpinState = () => ({ lang, coins, bet, waiting, spins, golden });
+
+/* =========================================================
+   End of script
+   ========================================================= */
 </script>
 
 </body>
